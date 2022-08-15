@@ -31,6 +31,7 @@ partial class Main
     /// </summary>
     private void InitializeComponent()
     {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.FixButton = new System.Windows.Forms.Button();
             this.EnableHotKeyCheckBox = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -204,6 +205,7 @@ partial class Main
             this.Controls.Add(this.label1);
             this.Controls.Add(this.EnableHotKeyCheckBox);
             this.Controls.Add(this.FixButton);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Main";
             this.Text = "魔兽争霸3叠字修复";
