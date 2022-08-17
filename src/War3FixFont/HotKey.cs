@@ -5,7 +5,7 @@ using War3FixFont.WinAPI;
 
 namespace War3FixFont;
 
-public record HotKey
+public class HotKey
 {
     public const string DefaultString = "0,1,1,D";
 
@@ -136,5 +136,16 @@ public record HotKey
         }
 
         return hotKey;
+    }
+
+    public HotKey Clone()
+    {
+        return new()
+        {
+            Control = Control,
+            Shift = Shift,
+            Alt = Alt,
+            KeyCode = KeyCode
+        };
     }
 }

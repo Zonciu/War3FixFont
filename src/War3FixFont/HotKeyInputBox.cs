@@ -65,12 +65,14 @@ public sealed class HotKeyInputBox : TextBox
 
     private HotKey _hotkey = new();
 
+    [Browsable(false)]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public HotKey HotKey
     {
-        get => _hotkey;
+        get => _hotkey.Clone();
         set
         {
-            _hotkey = value;
+            _hotkey = value.Clone();
             RefreshText();
         }
     }
