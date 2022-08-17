@@ -39,7 +39,7 @@ partial class Main
             this.ResetBorderButton = new System.Windows.Forms.Button();
             this.FullScreenButton = new System.Windows.Forms.Button();
             this.EnableFullScreenCheckBox = new System.Windows.Forms.CheckBox();
-            this.label3 = new System.Windows.Forms.Label();
+            this.VersionLabel = new System.Windows.Forms.Label();
             this.HotKeyInputBox = new War3FixFont.HotKeyInputBox();
             this.EnableTimerFixCheckBox = new System.Windows.Forms.CheckBox();
             this.IntervalInput = new System.Windows.Forms.NumericUpDown();
@@ -130,15 +130,15 @@ partial class Main
             this.EnableFullScreenCheckBox.UseVisualStyleBackColor = true;
             this.EnableFullScreenCheckBox.CheckedChanged += new System.EventHandler(this.EnableFullScreenCheckBox_Click);
             // 
-            // label3
+            // VersionLabel
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(282, 205);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(29, 12);
-            this.label3.TabIndex = 11;
-            this.label3.Text = "v0.1";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.VersionLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.VersionLabel.Location = new System.Drawing.Point(236, 205);
+            this.VersionLabel.Name = "VersionLabel";
+            this.VersionLabel.Size = new System.Drawing.Size(75, 12);
+            this.VersionLabel.TabIndex = 11;
+            this.VersionLabel.Text = "vx.x";
+            this.VersionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // HotKeyInputBox
             // 
@@ -221,7 +221,7 @@ partial class Main
             this.Controls.Add(this.IntervalInput);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.HotKeyInputBox);
-            this.Controls.Add(this.label3);
+            this.Controls.Add(this.VersionLabel);
             this.Controls.Add(this.EnableFullScreenCheckBox);
             this.Controls.Add(this.FullScreenButton);
             this.Controls.Add(this.ResetBorderButton);
@@ -250,7 +250,7 @@ partial class Main
     private Button ResetBorderButton;
     private Button FullScreenButton;
     private CheckBox EnableFullScreenCheckBox;
-    private Label label3;
+    private Label VersionLabel;
     private CheckBox EnableTimerFixCheckBox;
     private NumericUpDown IntervalInput;
     private Label label2;

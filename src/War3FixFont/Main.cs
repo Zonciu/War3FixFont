@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
@@ -40,6 +41,8 @@ public partial class Main : Form
         _fixThresholdTicks = Settings.FixThreshold * 1000 * 10000;
 
         InitializeComponent();
+
+        VersionLabel.Text = @$"v{Application.ProductVersion}";
 
         _hook.KeyPressed += HotKeyFix;
         _timer.Elapsed += TimerFix;
