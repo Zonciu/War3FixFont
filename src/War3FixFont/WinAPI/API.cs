@@ -9,10 +9,10 @@ public static class API
     public static extern IntPtr FindWindowA(string lpClassName, string lpWindowName);
 
     [DllImport("user32.dll")]
-    public static extern long GetWindowLong(IntPtr hWnd, int nIndex);
+    public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
     [DllImport("user32.dll")]
-    public static extern long SetWindowLong(IntPtr hWnd, int nIndex, long dwNewLong);
+    public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
     [DllImport("user32.dll")]
     public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
@@ -38,13 +38,13 @@ public static class API
 
     public const int GWL_EXSTYLE = -20;
 
-    public const long WS_EX_WINDOWEDGE = 0x0100;
+    public const int WS_EX_WINDOWEDGE = 0x0100;
 
-    public const long WS_EX_DLGMODALFRAME = 0x0001;
+    public const int WS_EX_DLGMODALFRAME = 0x0001;
 
-    public const long WS_BORDER = 0x00800000L;
+    public const int WS_BORDER = 0x00800000;
 
-    public const long WS_THICKFRAME = 0x00040000L;
+    public const int WS_THICKFRAME = 0x00040000;
 
-    public const long WS_CAPTION = 0x00C00000L;
+    public const int WS_CAPTION = 0x00C00000;
 }

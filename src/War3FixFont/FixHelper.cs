@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using War3FixFont.WinAPI;
 
@@ -68,6 +70,32 @@ public static class FixHelper
     /// </summary>
     public static void FixFont()
     {
+        Task.Run(
+            async () =>
+            {
+                var window = GetWar3Window();
+                if (window == IntPtr.Zero)
+                {
+                    return;
+                }
+
+                API.GetWindowRect(window, out var rect);
+                var x = rect.Left;
+                var y = rect.Top;
+                var width = rect.Right - rect.Left;
+                var height = rect.Bottom - rect.Top;
+
+                API.SetWindowPos(window, IntPtr.Zero, x, y, width, height + 1, 0);
+                await Task.Delay(1000);
+                API.SetWindowPos(window, IntPtr.Zero, x, y, width, height, 0);
+            });
+    }
+
+    /// <summary>
+    /// 修复叠字模式2
+    /// </summary>
+    public static void FixFont2(int value)
+    {
         var window = GetWar3Window();
         if (window == IntPtr.Zero)
         {
@@ -79,8 +107,7 @@ public static class FixHelper
         var y = rect.Top;
         var width = rect.Right - rect.Left;
         var height = rect.Bottom - rect.Top;
-
-        API.SetWindowPos(window, IntPtr.Zero, x, y, width, height + 1, 0);
-        API.SetWindowPos(window, IntPtr.Zero, x, y, width, height, 0);
+        Debug.WriteLine(height);
+        API.SetWindowPos(window, IntPtr.Zero, x, y, width, height + value, 0);
     }
 }

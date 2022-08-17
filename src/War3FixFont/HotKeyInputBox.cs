@@ -65,6 +65,16 @@ public sealed class HotKeyInputBox : TextBox
 
     private HotKey _hotkey = new();
 
+    public HotKey HotKey
+    {
+        get => _hotkey;
+        set
+        {
+            _hotkey = value;
+            RefreshText();
+        }
+    }
+
     public Keys KeyCode
     {
         get => _hotkey.KeyCode;
@@ -87,17 +97,6 @@ public sealed class HotKeyInputBox : TextBox
     {
         get => _hotkey.Shift;
         set => _hotkey.Shift = value;
-    }
-
-    public void SetHotKey(HotKey hotkey)
-    {
-        _hotkey = hotkey;
-        RefreshText();
-    }
-
-    public HotKey GetHotKey()
-    {
-        return _hotkey.Clone();
     }
 
     public void Reset()

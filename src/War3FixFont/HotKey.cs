@@ -1,15 +1,16 @@
-﻿// HotKeyInputBox 0.1 (c) 2011 Richard Z.H. Wang
-// MIT licensed.
-
-using System;
+﻿using System;
 using System.Text;
 using System.Windows.Forms;
 using War3FixFont.WinAPI;
 
 namespace War3FixFont;
 
-public class HotKey
+public record HotKey
 {
+    public const string DefaultString = "0,1,1,D";
+
+    public static readonly HotKey Default = new(DefaultString);
+
     public Keys KeyCode { get; set; }
 
     public bool Control { get; set; }
@@ -41,6 +42,28 @@ public class HotKey
             }
 
             return k;
+        }
+    }
+
+    public HotKey()
+    { }
+
+    public HotKey(string keys)
+    {
+        var settings = keys.Split(',');
+        if (settings.Length == 4)
+        {
+            if (int.TryParse(settings[0], out var control)
+             && int.TryParse(settings[1], out var shift)
+             && int.TryParse(settings[2], out var alt)
+             && Enum.TryParse<Keys>(settings[3], true, out var key)
+               )
+            {
+                Control = control == 1;
+                Shift = shift == 1;
+                Alt = alt == 1;
+                KeyCode = key;
+            }
         }
     }
 
@@ -86,17 +109,6 @@ public class HotKey
         }
 
         return stb.ToString();
-    }
-
-    public HotKey Clone()
-    {
-        return new HotKey
-        {
-            Control = Control,
-            Shift = Shift,
-            Alt = Alt,
-            KeyCode = KeyCode
-        };
     }
 
     public string Serialize()

@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
-using System.Configuration;
 using System.Diagnostics;
+using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
 
@@ -15,54 +15,137 @@ public partial class Main : Form
 
     private const string Url = "https://github.com/Zonciu/War3FixFont";
 
+    /// <summary>
+    /// 修复频率限制
+    /// </summary>
+    private readonly long _fixThresholdTicks;
+
+    private long _lastFixTicks;
+
+    private int _mode2Last = 0;
+
+    private const int Idle = 0;
+
+    private const int Fixing = 1;
+
+    private int _fixLock = Idle;
+
+    public readonly SettingsManager SettingsManager = new();
+
+    public Settings Settings => SettingsManager.Settings;
+
+    public Main()
+    {
+        SettingsManager.Load();
+        _fixThresholdTicks = Settings.FixThreshold * 1000 * 10000;
+
+        InitializeComponent();
+
+        _hook.KeyPressed += HotKeyFix;
+        _timer.Elapsed += TimerFix;
+
+        // 读取定时配置
+        var interval = Settings.TimerInterval;
+        IntervalInput.Value = interval > 0 ? interval : 60;
+        EnableTimerFixCheckBox.Checked = Settings.UseTimer;
+
+        // 读取全屏配置
+        EnableFullScreenCheckBox.Checked = Settings.UseFullScreen;
+
+        // 读取快捷键配置
+        var hotKey = Settings.HotKey;
+        if (hotKey.IsValid)
+        {
+            HotKeyInputBox.HotKey = hotKey;
+        }
+        else
+        {
+            HotKeyInputBox.Reset();
+            Settings.HotKey = HotKey.Default;
+            SettingsManager.Save();
+        }
+
+        EnableHotKeyCheckBox.Checked = Settings.UseHotKey;
+        HotKeyInputBox.Enabled = EnableHotKeyCheckBox.Checked;
+        UpdateHotKey();
+
+        if (EnableFullScreenCheckBox.Checked)
+        {
+            FixFont();
+        }
+    }
+
     protected override void OnClosing(CancelEventArgs e)
     {
         _hook.Dispose();
         base.OnClosing(e);
     }
 
-    public Main()
+    private void HotKeyFix(object sender, EventArgs args)
     {
-        InitializeComponent();
-
-        _hook.KeyPressed += (_, _) =>
+        if (!EnableHotKeyCheckBox.Checked)
         {
-            if (EnableHotKeyCheckBox.Checked)
-            {
-                FixFont();
-            }
-        };
-
-        _timer.Elapsed += (_, _) => FixFont();
-
-        // 读取定时配置
-        var interval = Properties.Settings.Default.Interval;
-        IntervalInput.Value = interval > 0 ? interval : 60;
-        EnableTimerFixCheckBox.Checked = Properties.Settings.Default.UseTimer;
-
-        // 读取全屏配置
-        EnableFullScreenCheckBox.Checked = Properties.Settings.Default.FullScreen;
-
-        // 读取快捷键配置
-        var hotKeyString = Properties.Settings.Default.HotKey;
-        if (!string.IsNullOrWhiteSpace(hotKeyString))
-        {
-            var hotKey = HotKey.Deserialize(hotKeyString);
-            if (hotKey.IsValid)
-            {
-                HotKeyInputBox.SetHotKey(hotKey);
-            }
-            else
-            {
-                HotKeyInputBox.Reset();
-                Properties.Settings.Default.HotKey = string.Empty;
-                Properties.Settings.Default.Save();
-            }
+            return;
         }
 
-        EnableHotKeyCheckBox.Checked = Properties.Settings.Default.UseHotKey;
-        HotKeyInputBox.Enabled = EnableHotKeyCheckBox.Checked;
-        UpdateHotKey();
+        if (Interlocked.CompareExchange(ref _fixLock, Fixing, Idle) != Idle)
+        {
+            return;
+        }
+
+        try
+        {
+            var now = DateTime.Now;
+            if (now.Ticks - _lastFixTicks >= _fixThresholdTicks)
+            {
+                _lastFixTicks = now.Ticks;
+                FixFont();
+                ResetTimer();
+            }
+        }
+        catch (Exception e)
+        {
+            MessageBox.Show(e.Message);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _fixLock, Idle);
+        }
+    }
+
+    private void TimerFix(object sender, EventArgs args)
+    {
+        if (Interlocked.CompareExchange(ref _fixLock, Fixing, Idle) != Idle)
+        {
+            return;
+        }
+
+        try
+        {
+            var now = DateTime.Now;
+            if (now.Ticks - _lastFixTicks >= _fixThresholdTicks)
+            {
+                _lastFixTicks = now.Ticks;
+                FixFont();
+            }
+        }
+        catch (Exception e)
+        {
+            MessageBox.Show(e.Message);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _fixLock, Idle);
+        }
+    }
+
+    private void ResetTimer()
+    {
+        if (Settings.UseTimer)
+        {
+            _timer.Stop();
+            _timer.Start();
+        }
     }
 
     /// <summary>
@@ -80,7 +163,15 @@ public partial class Main : Form
             FixHelper.Border();
         }
 
-        FixHelper.FixFont();
+        if (!Mode2CheckBox.Checked)
+        {
+            FixHelper.FixFont();
+        }
+        else
+        {
+            _mode2Last = _mode2Last == 0 ? 1 : 0;
+            FixHelper.FixFont2(_mode2Last);
+        }
     }
 
     /// <summary>
@@ -95,7 +186,7 @@ public partial class Main : Form
 
         if (EnableHotKeyCheckBox.Checked)
         {
-            var hotKey = HotKeyInputBox.GetHotKey();
+            var hotKey = HotKeyInputBox.HotKey;
             if (hotKey.IsValid)
             {
                 var success = _hook.RegisterHotKey(hotKey.Modifier, hotKey.KeyCode);
@@ -115,6 +206,7 @@ public partial class Main : Form
     private void FixButton_Click(object sender, EventArgs e)
     {
         FixFont();
+        ResetTimer();
     }
 
     /// <summary>
@@ -150,8 +242,8 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void EnableFullScreenCheckBox_Click(object sender, EventArgs e)
     {
-        Properties.Settings.Default.FullScreen = EnableFullScreenCheckBox.Checked;
-        Properties.Settings.Default.Save();
+        Settings.UseFullScreen = EnableFullScreenCheckBox.Checked;
+        SettingsManager.Save();
     }
 
     /// <summary>
@@ -173,8 +265,8 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void IntervalInput_ValueChanged(object sender, EventArgs e)
     {
-        Properties.Settings.Default.Interval = (int)IntervalInput.Value;
-        Properties.Settings.Default.Save();
+        Settings.TimerInterval = (int)IntervalInput.Value;
+        SettingsManager.Save();
         if (_timer.Enabled)
         {
             _timer.Stop();
@@ -190,8 +282,8 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void EnableTimerFixCheckBox_CheckedChanged(object sender, EventArgs e)
     {
-        Properties.Settings.Default.UseTimer = EnableTimerFixCheckBox.Checked;
-        Properties.Settings.Default.Save();
+        Settings.UseTimer = EnableTimerFixCheckBox.Checked;
+        SettingsManager.Save();
         if (!EnableTimerFixCheckBox.Checked)
         {
             if (_timer.Enabled)
@@ -218,8 +310,8 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void EnableHotKeyCheckBox_CheckedChanged(object sender, EventArgs e)
     {
-        Properties.Settings.Default.UseHotKey = EnableHotKeyCheckBox.Checked;
-        Properties.Settings.Default.Save();
+        Settings.UseHotKey = EnableHotKeyCheckBox.Checked;
+        SettingsManager.Save();
         HotKeyInputBox.Enabled = EnableHotKeyCheckBox.Checked;
         UpdateHotKey();
     }
@@ -231,17 +323,24 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void HotKeyInputBox_HotKeyChanged(object sender, EventArgs e)
     {
-        var hotkey = HotKeyInputBox.GetHotKey();
+        var hotkey = HotKeyInputBox.HotKey;
         if (!hotkey.IsValid)
         {
             HotKeyInputBox.Reset();
         }
         else
         {
-            Properties.Settings.Default.HotKey = hotkey.Serialize();
-            Properties.Settings.Default.Save();
+            Settings.HotKey = hotkey;
+            SettingsManager.Save();
         }
 
         UpdateHotKey();
+    }
+
+    private void ManualButton_Click(object sender, EventArgs e)
+    {
+        using var manual = new Manual();
+        manual.StartPosition = FormStartPosition.CenterParent;
+        manual.ShowDialog();
     }
 }

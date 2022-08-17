@@ -44,6 +44,8 @@ partial class Main
             this.EnableTimerFixCheckBox = new System.Windows.Forms.CheckBox();
             this.IntervalInput = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
+            this.Mode2CheckBox = new System.Windows.Forms.CheckBox();
+            this.ManualButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.IntervalInput)).BeginInit();
             this.SuspendLayout();
             // 
@@ -188,11 +190,33 @@ partial class Main
             this.label2.TabIndex = 17;
             this.label2.Text = "秒";
             // 
+            // Mode2CheckBox
+            // 
+            this.Mode2CheckBox.AutoSize = true;
+            this.Mode2CheckBox.Location = new System.Drawing.Point(12, 114);
+            this.Mode2CheckBox.Name = "Mode2CheckBox";
+            this.Mode2CheckBox.Size = new System.Drawing.Size(72, 16);
+            this.Mode2CheckBox.TabIndex = 18;
+            this.Mode2CheckBox.Text = "第二模式";
+            this.Mode2CheckBox.UseVisualStyleBackColor = true;
+            // 
+            // ManualButton
+            // 
+            this.ManualButton.Location = new System.Drawing.Point(236, 174);
+            this.ManualButton.Name = "ManualButton";
+            this.ManualButton.Size = new System.Drawing.Size(75, 23);
+            this.ManualButton.TabIndex = 19;
+            this.ManualButton.Text = "使用说明";
+            this.ManualButton.UseVisualStyleBackColor = true;
+            this.ManualButton.Click += new System.EventHandler(this.ManualButton_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(323, 226);
+            this.Controls.Add(this.ManualButton);
+            this.Controls.Add(this.Mode2CheckBox);
             this.Controls.Add(this.EnableTimerFixCheckBox);
             this.Controls.Add(this.IntervalInput);
             this.Controls.Add(this.label2);
@@ -230,4 +254,6 @@ partial class Main
     private CheckBox EnableTimerFixCheckBox;
     private NumericUpDown IntervalInput;
     private Label label2;
+    private CheckBox Mode2CheckBox;
+    private Button ManualButton;
 }
