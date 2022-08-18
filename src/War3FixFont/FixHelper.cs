@@ -10,7 +10,7 @@ public static class FixHelper
 {
     public static IntPtr GetWar3Window()
     {
-        var window = API.FindWindowA(null!, "Warcraft III");
+        var window = API.FindWindowA("Warcraft III", "Warcraft III");
         return window;
     }
 
