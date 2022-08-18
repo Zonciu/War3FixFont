@@ -68,7 +68,7 @@ public static class FixHelper
     /// <summary>
     /// 修复叠字
     /// </summary>
-    public static void FixFont()
+    public static void FixFont(FixDirection direction)
     {
         Task.Run(
             async () =>
@@ -84,8 +84,26 @@ public static class FixHelper
                 var y = rect.Top;
                 var width = rect.Right - rect.Left;
                 var height = rect.Bottom - rect.Top;
+                var widthDelta = 0;
+                var heightDelta = 0;
+                switch (direction)
+                {
+                case FixDirection.Width:
+                    widthDelta = 1;
+                    break;
+                case FixDirection.Height:
+                    heightDelta = 1;
+                    break;
+                case FixDirection.Both:
+                    widthDelta = 1;
+                    heightDelta = 1;
+                    break;
+                default:
+                    widthDelta = 1;
+                    break;
+                }
 
-                API.SetWindowPos(window, IntPtr.Zero, x, y, width, height + 1, 0);
+                API.SetWindowPos(window, IntPtr.Zero, x, y, width + widthDelta, height + heightDelta, 0);
                 await Task.Delay(1000);
                 API.SetWindowPos(window, IntPtr.Zero, x, y, width, height, 0);
             });
@@ -94,7 +112,7 @@ public static class FixHelper
     /// <summary>
     /// 修复叠字模式2
     /// </summary>
-    public static void FixFont2(int value)
+    public static void FixFont2(Mode2 mode2, FixDirection direction)
     {
         var window = GetWar3Window();
         if (window == IntPtr.Zero)
@@ -107,7 +125,32 @@ public static class FixHelper
         var y = rect.Top;
         var width = rect.Right - rect.Left;
         var height = rect.Bottom - rect.Top;
-        Debug.WriteLine(height);
-        API.SetWindowPos(window, IntPtr.Zero, x, y, width, height + value, 0);
+        var widthDelta = 0;
+        var heightDelta = 0;
+        switch (direction)
+        {
+        case FixDirection.Width:
+            widthDelta = 1;
+            break;
+        case FixDirection.Height:
+            heightDelta = 1;
+            break;
+        case FixDirection.Both:
+            widthDelta = 1;
+            heightDelta = 1;
+            break;
+        default:
+            widthDelta = 1;
+            break;
+        }
+
+        if (mode2 == Mode2.Fixing)
+        {
+            API.SetWindowPos(window, IntPtr.Zero, x, y, width + widthDelta, height + heightDelta, 0);
+        }
+        else
+        {
+            API.SetWindowPos(window, IntPtr.Zero, x, y, width, height, 0);
+        }
     }
 }

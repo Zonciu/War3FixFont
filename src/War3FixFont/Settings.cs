@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace War3FixFont;
 
@@ -59,4 +60,11 @@ public class Settings
     /// </summary>
     [JsonProperty]
     public int FixThreshold { get; set; } = 5;
+
+    /// <summary>
+    /// 修复方向
+    /// </summary>
+    [JsonProperty]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public FixDirection FixDirection { get; set; } = FixDirection.Width;
 }

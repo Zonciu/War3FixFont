@@ -23,7 +23,7 @@ public partial class Main : Form
 
     private long _lastFixTicks;
 
-    private int _mode2Last = 0;
+    private Mode2 _mode2Last = Mode2.Reset;
 
     private const int Idle = 0;
 
@@ -80,6 +80,7 @@ public partial class Main : Form
 
     protected override void OnClosing(CancelEventArgs e)
     {
+        SettingsManager.Save();
         _hook.Dispose();
         base.OnClosing(e);
     }
@@ -168,12 +169,12 @@ public partial class Main : Form
 
         if (!Mode2CheckBox.Checked)
         {
-            FixHelper.FixFont();
+            FixHelper.FixFont(Settings.FixDirection);
         }
         else
         {
-            _mode2Last = _mode2Last == 0 ? 1 : 0;
-            FixHelper.FixFont2(_mode2Last);
+            _mode2Last = _mode2Last == Mode2.Reset ? Mode2.Fixing : Mode2.Reset;
+            FixHelper.FixFont2(_mode2Last, Settings.FixDirection);
         }
     }
 
@@ -235,7 +236,7 @@ public partial class Main : Form
     private void SetBorderButton_Click(object sender, EventArgs e)
     {
         FixHelper.Border();
-        FixHelper.FixFont();
+        FixHelper.FixFont(Settings.FixDirection);
     }
 
     /// <summary>
@@ -258,7 +259,7 @@ public partial class Main : Form
     {
         FixHelper.Borderless();
         FixHelper.FullScreen();
-        FixHelper.FixFont();
+        FixHelper.FixFont(Settings.FixDirection);
     }
 
     /// <summary>
