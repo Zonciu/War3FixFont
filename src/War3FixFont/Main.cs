@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
@@ -161,20 +160,21 @@ public partial class Main : Form
         {
             FixHelper.Borderless();
             FixHelper.FullScreen();
+
+            if (!Mode2CheckBox.Checked)
+            {
+                FixHelper.FixFont(Settings.FixDirection);
+            }
+            else
+            {
+                _mode2Last = _mode2Last == Mode2.Reset ? Mode2.Fixing : Mode2.Reset;
+                FixHelper.FixFont2(_mode2Last, Settings.FixDirection);
+            }
         }
         else
         {
             FixHelper.Border();
-        }
-
-        if (!Mode2CheckBox.Checked)
-        {
-            FixHelper.FixFont(Settings.FixDirection);
-        }
-        else
-        {
-            _mode2Last = _mode2Last == Mode2.Reset ? Mode2.Fixing : Mode2.Reset;
-            FixHelper.FixFont2(_mode2Last, Settings.FixDirection);
+            FixHelper.FixMaxWindow(Settings.FixDirection);
         }
     }
 

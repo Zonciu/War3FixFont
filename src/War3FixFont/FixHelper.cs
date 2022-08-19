@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using War3FixFont.WinAPI;
@@ -152,5 +151,59 @@ public static class FixHelper
         {
             API.SetWindowPos(window, IntPtr.Zero, x, y, width, height, 0);
         }
+    }
+
+    /// <summary>
+    /// 修复最大化窗口
+    /// </summary>
+    public static void FixMaxWindow(FixDirection direction)
+    {
+        Task.Run(
+            async () =>
+            {
+                var window = GetWar3Window();
+                if (window == IntPtr.Zero)
+                {
+                    return;
+                }
+
+                var isMaxWindow = API.IsZoomed(window);
+                if (isMaxWindow)
+                {
+                    API.ShowWindow(window, 1);
+                    await Task.Delay(100);
+                    API.ShowWindow(window, 3);
+                }
+                else
+                {
+                    API.GetWindowRect(window, out var rect);
+                    var x = rect.Left;
+                    var y = rect.Top;
+                    var width = rect.Right - rect.Left;
+                    var height = rect.Bottom - rect.Top;
+                    var widthDelta = 0;
+                    var heightDelta = 0;
+                    switch (direction)
+                    {
+                    case FixDirection.Width:
+                        widthDelta = 1;
+                        break;
+                    case FixDirection.Height:
+                        heightDelta = 1;
+                        break;
+                    case FixDirection.Both:
+                        widthDelta = 1;
+                        heightDelta = 1;
+                        break;
+                    default:
+                        widthDelta = 1;
+                        break;
+                    }
+
+                    API.SetWindowPos(window, IntPtr.Zero, x, y, width + widthDelta, height + heightDelta, 0);
+                    await Task.Delay(1000);
+                    API.SetWindowPos(window, IntPtr.Zero, x, y, width, height, 0);
+                }
+            });
     }
 }
