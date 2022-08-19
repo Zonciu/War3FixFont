@@ -46,6 +46,9 @@ public partial class Main : Form
         _hook.KeyPressed += HotKeyFix;
         _timer.Elapsed += TimerFix;
 
+        // 读取模式2启用配置
+        Mode2CheckBox.Checked = Settings.UseMode2;
+
         // 读取定时配置
         var interval = Settings.TimerInterval;
         IntervalInput.Value = interval > 0 ? interval : 60;
@@ -403,5 +406,11 @@ public partial class Main : Form
     {
         ShowInTaskbar = false; //将程序从任务栏移除显示
         Visible = false;       //隐藏窗口
+    }
+
+    private void Mode2CheckBox_CheckedChanged(object sender, EventArgs e)
+    {
+        Settings.UseMode2 = Mode2CheckBox.Checked;
+        SettingsManager.Save();
     }
 }

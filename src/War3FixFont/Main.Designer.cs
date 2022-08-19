@@ -191,6 +191,7 @@ partial class Main
             this.Mode2CheckBox.TabIndex = 18;
             this.Mode2CheckBox.Text = "第二模式";
             this.Mode2CheckBox.UseVisualStyleBackColor = true;
+            this.Mode2CheckBox.CheckedChanged += new System.EventHandler(this.Mode2CheckBox_CheckedChanged);
             // 
             // ManualButton
             // 
@@ -228,7 +229,7 @@ partial class Main
             // ExitAppMenuItem
             // 
             this.ExitAppMenuItem.Name = "ExitAppMenuItem";
-            this.ExitAppMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ExitAppMenuItem.Size = new System.Drawing.Size(100, 22);
             this.ExitAppMenuItem.Text = "退出";
             this.ExitAppMenuItem.Click += new System.EventHandler(this.ExitApplication);
             // 
