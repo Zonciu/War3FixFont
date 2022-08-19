@@ -31,6 +31,7 @@ partial class Main
     /// </summary>
     private void InitializeComponent()
     {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.FixButton = new System.Windows.Forms.Button();
             this.EnableHotKeyCheckBox = new System.Windows.Forms.CheckBox();
@@ -40,13 +41,18 @@ partial class Main
             this.FullScreenButton = new System.Windows.Forms.Button();
             this.EnableFullScreenCheckBox = new System.Windows.Forms.CheckBox();
             this.VersionLabel = new System.Windows.Forms.Label();
-            this.HotKeyInputBox = new War3FixFont.HotKeyInputBox();
             this.EnableTimerFixCheckBox = new System.Windows.Forms.CheckBox();
             this.IntervalInput = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.Mode2CheckBox = new System.Windows.Forms.CheckBox();
             this.ManualButton = new System.Windows.Forms.Button();
+            this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.PanelMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.ShowFormMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ExitAppMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.HotKeyInputBox = new War3FixFont.HotKeyInputBox();
             ((System.ComponentModel.ISupportInitialize)(this.IntervalInput)).BeginInit();
+            this.PanelMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // FixButton
@@ -140,20 +146,6 @@ partial class Main
             this.VersionLabel.Text = "vx.x";
             this.VersionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // HotKeyInputBox
-            // 
-            this.HotKeyInputBox.Alt = false;
-            this.HotKeyInputBox.Control = false;
-            this.HotKeyInputBox.KeyCode = System.Windows.Forms.Keys.None;
-            this.HotKeyInputBox.Location = new System.Drawing.Point(102, 90);
-            this.HotKeyInputBox.Name = "HotKeyInputBox";
-            this.HotKeyInputBox.Shift = false;
-            this.HotKeyInputBox.ShortcutsEnabled = false;
-            this.HotKeyInputBox.Size = new System.Drawing.Size(153, 21);
-            this.HotKeyInputBox.TabIndex = 12;
-            this.HotKeyInputBox.WordWrap = false;
-            this.HotKeyInputBox.HotKeyChanged += new System.EventHandler(this.HotKeyInputBox_HotKeyChanged);
-            // 
             // EnableTimerFixCheckBox
             // 
             this.EnableTimerFixCheckBox.AutoSize = true;
@@ -210,6 +202,50 @@ partial class Main
             this.ManualButton.UseVisualStyleBackColor = true;
             this.ManualButton.Click += new System.EventHandler(this.ManualButton_Click);
             // 
+            // NotifyIcon
+            // 
+            this.NotifyIcon.ContextMenuStrip = this.PanelMenu;
+            this.NotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon.Icon")));
+            this.NotifyIcon.Text = "notifyIcon1";
+            this.NotifyIcon.Visible = true;
+            this.NotifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon_MouseClick);
+            // 
+            // PanelMenu
+            // 
+            this.PanelMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ShowFormMenuItem,
+            this.ExitAppMenuItem});
+            this.PanelMenu.Name = "PanelMenu";
+            this.PanelMenu.Size = new System.Drawing.Size(181, 70);
+            // 
+            // ShowFormMenuItem
+            // 
+            this.ShowFormMenuItem.Name = "ShowFormMenuItem";
+            this.ShowFormMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ShowFormMenuItem.Text = "显示";
+            this.ShowFormMenuItem.Click += new System.EventHandler(this.ShowWindow);
+            // 
+            // ExitAppMenuItem
+            // 
+            this.ExitAppMenuItem.Name = "ExitAppMenuItem";
+            this.ExitAppMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ExitAppMenuItem.Text = "退出";
+            this.ExitAppMenuItem.Click += new System.EventHandler(this.ExitApplication);
+            // 
+            // HotKeyInputBox
+            // 
+            this.HotKeyInputBox.Alt = false;
+            this.HotKeyInputBox.Control = false;
+            this.HotKeyInputBox.KeyCode = System.Windows.Forms.Keys.None;
+            this.HotKeyInputBox.Location = new System.Drawing.Point(102, 90);
+            this.HotKeyInputBox.Name = "HotKeyInputBox";
+            this.HotKeyInputBox.Shift = false;
+            this.HotKeyInputBox.ShortcutsEnabled = false;
+            this.HotKeyInputBox.Size = new System.Drawing.Size(153, 21);
+            this.HotKeyInputBox.TabIndex = 12;
+            this.HotKeyInputBox.WordWrap = false;
+            this.HotKeyInputBox.HotKeyChanged += new System.EventHandler(this.HotKeyInputBox_HotKeyChanged);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -233,7 +269,9 @@ partial class Main
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Main";
             this.Text = "魔兽争霸3叠字修复";
+            this.SizeChanged += new System.EventHandler(this.Main_SizeChanged);
             ((System.ComponentModel.ISupportInitialize)(this.IntervalInput)).EndInit();
+            this.PanelMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -256,4 +294,8 @@ partial class Main
     private Label label2;
     private CheckBox Mode2CheckBox;
     private Button ManualButton;
+    private NotifyIcon NotifyIcon;
+    private ContextMenuStrip PanelMenu;
+    private ToolStripMenuItem ShowFormMenuItem;
+    private ToolStripMenuItem ExitAppMenuItem;
 }

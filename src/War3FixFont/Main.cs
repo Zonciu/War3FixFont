@@ -347,4 +347,61 @@ public partial class Main : Form
         manual.StartPosition = FormStartPosition.CenterParent;
         manual.ShowDialog();
     }
+
+    /// <summary>
+    /// 从托盘显示
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void NotifyIcon_MouseClick(object sender, MouseEventArgs e)
+    {
+        if (e.Button == MouseButtons.Left)
+        {
+            if (ShowInTaskbar)
+            {
+                HideWindow();
+            }
+            else
+            {
+                ShowWindow();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 窗口最小化到托盘
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Main_SizeChanged(object sender, EventArgs e)
+    {
+        if (WindowState == FormWindowState.Minimized)
+        {
+            HideWindow();
+        }
+    }
+
+    private void ShowWindow(object sender, EventArgs e)
+    {
+        ShowWindow();
+    }
+
+    private void ExitApplication(object sender, EventArgs e)
+    {
+        Close();
+    }
+
+    private void ShowWindow()
+    {
+        ShowInTaskbar = true;                 //设置程序允许显示在任务栏
+        Visible = true;                       //设置窗口可见
+        WindowState = FormWindowState.Normal; //设置窗口状态
+        Activate();                           //设置窗口为活动状态，防止被其他窗口遮挡。
+    }
+
+    private void HideWindow()
+    {
+        ShowInTaskbar = false; //将程序从任务栏移除显示
+        Visible = false;       //隐藏窗口
+    }
 }
