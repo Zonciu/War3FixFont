@@ -18,14 +18,10 @@ public static class API
     public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
 
     [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool GetWindowRect(IntPtr hWnd, out Rect lpRect);
 
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    [DllImport("user32.dll")]
     public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    public static extern bool IsZoomed(IntPtr hWnd);
 
     public const int GWL_STYLE = -16;
 
@@ -40,4 +36,8 @@ public static class API
     public const int WS_THICKFRAME = 0x00040000;
 
     public const int WS_CAPTION = 0x00C00000;
+
+    public const int SW_MAXIMIZE = 3;
+
+    public const int SW_SHOWNORMAL = 1;
 }

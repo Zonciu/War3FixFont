@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
@@ -21,8 +22,6 @@ public partial class Main : Form
     private readonly long _fixThresholdTicks;
 
     private long _lastFixTicks;
-
-    private Mode2 _mode2Last = Mode2.Reset;
 
     private const int Idle = 0;
 
@@ -46,16 +45,26 @@ public partial class Main : Form
         _hook.KeyPressed += HotKeyFix;
         _timer.Elapsed += TimerFix;
 
-        // 读取模式2启用配置
-        Mode2CheckBox.Checked = Settings.UseMode2;
-
         // 读取定时配置
         var interval = Settings.TimerInterval;
         IntervalInput.Value = interval > 0 ? interval : 60;
         EnableTimerFixCheckBox.Checked = Settings.UseTimer;
 
-        // 读取全屏配置
-        EnableFullScreenCheckBox.Checked = Settings.UseFullScreen;
+        // 读取窗口配置
+        WindowModeSelect.DisplayMember = "Name";
+        WindowModeSelect.ValueMember = "Value";
+        var windowModeSource = Enum.GetValues(typeof(WindowMode))
+                                   .Cast<WindowMode>()
+                                   .Select(
+                                        value => new ComboBoxItem<WindowMode>
+                                        {
+                                            Name = (Attribute.GetCustomAttribute(value.GetType().GetField(value.ToString()), typeof(DescriptionAttribute)) as DescriptionAttribute)!.Description,
+                                            Value = value
+                                        })
+                                   .OrderBy(item => item.Value)
+                                   .ToList();
+        WindowModeSelect.DataSource = windowModeSource;
+        WindowModeSelect.SelectedItem = windowModeSource.Single(e => e.Value == Settings.WindowMode);
 
         // 读取快捷键配置
         var hotKey = Settings.HotKey;
@@ -73,11 +82,6 @@ public partial class Main : Form
         EnableHotKeyCheckBox.Checked = Settings.UseHotKey;
         HotKeyInputBox.Enabled = EnableHotKeyCheckBox.Checked;
         UpdateHotKey();
-
-        if (EnableFullScreenCheckBox.Checked)
-        {
-            FixFont();
-        }
     }
 
     protected override void OnClosing(CancelEventArgs e)
@@ -159,25 +163,20 @@ public partial class Main : Form
     /// </summary>
     private void FixFont()
     {
-        if (EnableFullScreenCheckBox.Checked)
+        switch (Settings.WindowMode)
         {
-            FixHelper.Borderless();
-            FixHelper.FullScreen();
-
-            if (!Mode2CheckBox.Checked)
-            {
-                FixHelper.FixFont(Settings.FixDirection);
-            }
-            else
-            {
-                _mode2Last = _mode2Last == Mode2.Reset ? Mode2.Fixing : Mode2.Reset;
-                FixHelper.FixFont2(_mode2Last, Settings.FixDirection);
-            }
-        }
-        else
-        {
+        case WindowMode.KeepCurrent:
+            FixHelper.FixCurrentWindow();
+            break;
+        case WindowMode.MaxWindows:
             FixHelper.Border();
-            FixHelper.FixMaxWindow(Settings.FixDirection);
+            FixHelper.FixMaxWindow();
+            break;
+        case WindowMode.FullScreenWindow:
+        default:
+            FixHelper.Borderless();
+            FixHelper.FixFullScreenWindow();
+            break;
         }
     }
 
@@ -232,25 +231,15 @@ public partial class Main : Form
     }
 
     /// <summary>
-    /// 恢复边框
+    /// 有边框全屏
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void SetBorderButton_Click(object sender, EventArgs e)
+    private void BorderMaxWindowButton_Click(object sender, EventArgs e)
     {
         FixHelper.Border();
-        FixHelper.FixFont(Settings.FixDirection);
-    }
-
-    /// <summary>
-    /// 更改无边框全屏启用状态
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void EnableFullScreenCheckBox_Click(object sender, EventArgs e)
-    {
-        Settings.UseFullScreen = EnableFullScreenCheckBox.Checked;
-        SettingsManager.Save();
+        FixHelper.NormalWindow();
+        FixHelper.MaxWindow();
     }
 
     /// <summary>
@@ -262,7 +251,6 @@ public partial class Main : Form
     {
         FixHelper.Borderless();
         FixHelper.FullScreen();
-        FixHelper.FixFont(Settings.FixDirection);
     }
 
     /// <summary>
@@ -344,6 +332,11 @@ public partial class Main : Form
         UpdateHotKey();
     }
 
+    /// <summary>
+    /// 使用说明
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ManualButton_Click(object sender, EventArgs e)
     {
         using var manual = new Manual();
@@ -408,9 +401,15 @@ public partial class Main : Form
         Visible = false;       //隐藏窗口
     }
 
-    private void Mode2CheckBox_CheckedChanged(object sender, EventArgs e)
+    /// <summary>
+    /// 窗口模式改变
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void WindowModeSelect_SelectionChangeCommitted(object sender, EventArgs e)
     {
-        Settings.UseMode2 = Mode2CheckBox.Checked;
+        var mode = (ComboBoxItem<WindowMode>)WindowModeSelect.SelectedItem;
+        Settings.WindowMode = mode.Value;
         SettingsManager.Save();
     }
 }

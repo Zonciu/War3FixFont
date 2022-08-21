@@ -88,8 +88,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FixDirection.cs" />
-    <Compile Include="Mode2.cs" />
+    <Compile Include="ComboBoxItem.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="FixHelper.cs" />
     <Compile Include="HotKey.cs" />
@@ -116,6 +115,7 @@
     <Compile Include="WinAPI\ModifierKeys.cs" />
     <Compile Include="WinAPI\Rect.cs" />
     <Compile Include="WinAPI\API.cs" />
+    <Compile Include="WindowMode.cs" />
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>

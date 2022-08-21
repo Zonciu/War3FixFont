@@ -37,19 +37,19 @@ partial class Main
             this.EnableHotKeyCheckBox = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.LinkLabel = new System.Windows.Forms.LinkLabel();
-            this.ResetBorderButton = new System.Windows.Forms.Button();
+            this.BorderMaxWindowButton = new System.Windows.Forms.Button();
             this.FullScreenButton = new System.Windows.Forms.Button();
-            this.EnableFullScreenCheckBox = new System.Windows.Forms.CheckBox();
             this.VersionLabel = new System.Windows.Forms.Label();
             this.EnableTimerFixCheckBox = new System.Windows.Forms.CheckBox();
             this.IntervalInput = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
-            this.Mode2CheckBox = new System.Windows.Forms.CheckBox();
             this.ManualButton = new System.Windows.Forms.Button();
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.PanelMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ShowFormMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitAppMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.WindowModeSelect = new System.Windows.Forms.ComboBox();
+            this.WindowModeLabel = new System.Windows.Forms.Label();
             this.HotKeyInputBox = new War3FixFont.HotKeyInputBox();
             ((System.ComponentModel.ISupportInitialize)(this.IntervalInput)).BeginInit();
             this.PanelMenu.SuspendLayout();
@@ -71,7 +71,7 @@ partial class Main
             this.EnableHotKeyCheckBox.AutoSize = true;
             this.EnableHotKeyCheckBox.Checked = true;
             this.EnableHotKeyCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.EnableHotKeyCheckBox.Location = new System.Drawing.Point(12, 92);
+            this.EnableHotKeyCheckBox.Location = new System.Drawing.Point(12, 109);
             this.EnableHotKeyCheckBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.EnableHotKeyCheckBox.Name = "EnableHotKeyCheckBox";
             this.EnableHotKeyCheckBox.Size = new System.Drawing.Size(84, 16);
@@ -100,16 +100,16 @@ partial class Main
             this.LinkLabel.Text = "https://github.com/Zonciu/War3FixFont";
             this.LinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel_LinkClicked);
             // 
-            // ResetBorderButton
+            // BorderMaxWindowButton
             // 
-            this.ResetBorderButton.Location = new System.Drawing.Point(236, 39);
-            this.ResetBorderButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.ResetBorderButton.Name = "ResetBorderButton";
-            this.ResetBorderButton.Size = new System.Drawing.Size(75, 23);
-            this.ResetBorderButton.TabIndex = 4;
-            this.ResetBorderButton.Text = "恢复边框";
-            this.ResetBorderButton.UseVisualStyleBackColor = true;
-            this.ResetBorderButton.Click += new System.EventHandler(this.SetBorderButton_Click);
+            this.BorderMaxWindowButton.Location = new System.Drawing.Point(236, 39);
+            this.BorderMaxWindowButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.BorderMaxWindowButton.Name = "BorderMaxWindowButton";
+            this.BorderMaxWindowButton.Size = new System.Drawing.Size(75, 23);
+            this.BorderMaxWindowButton.TabIndex = 4;
+            this.BorderMaxWindowButton.Text = "有边框全屏";
+            this.BorderMaxWindowButton.UseVisualStyleBackColor = true;
+            this.BorderMaxWindowButton.Click += new System.EventHandler(this.BorderMaxWindowButton_Click);
             // 
             // FullScreenButton
             // 
@@ -121,20 +121,6 @@ partial class Main
             this.FullScreenButton.Text = "无边框全屏";
             this.FullScreenButton.UseVisualStyleBackColor = true;
             this.FullScreenButton.Click += new System.EventHandler(this.FullScreenButton_Click);
-            // 
-            // EnableFullScreenCheckBox
-            // 
-            this.EnableFullScreenCheckBox.AutoSize = true;
-            this.EnableFullScreenCheckBox.Checked = true;
-            this.EnableFullScreenCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.EnableFullScreenCheckBox.Location = new System.Drawing.Point(12, 72);
-            this.EnableFullScreenCheckBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.EnableFullScreenCheckBox.Name = "EnableFullScreenCheckBox";
-            this.EnableFullScreenCheckBox.Size = new System.Drawing.Size(84, 16);
-            this.EnableFullScreenCheckBox.TabIndex = 6;
-            this.EnableFullScreenCheckBox.Text = "无边框全屏";
-            this.EnableFullScreenCheckBox.UseVisualStyleBackColor = true;
-            this.EnableFullScreenCheckBox.CheckedChanged += new System.EventHandler(this.EnableFullScreenCheckBox_Click);
             // 
             // VersionLabel
             // 
@@ -182,17 +168,6 @@ partial class Main
             this.label2.TabIndex = 17;
             this.label2.Text = "秒";
             // 
-            // Mode2CheckBox
-            // 
-            this.Mode2CheckBox.AutoSize = true;
-            this.Mode2CheckBox.Location = new System.Drawing.Point(12, 114);
-            this.Mode2CheckBox.Name = "Mode2CheckBox";
-            this.Mode2CheckBox.Size = new System.Drawing.Size(72, 16);
-            this.Mode2CheckBox.TabIndex = 18;
-            this.Mode2CheckBox.Text = "第二模式";
-            this.Mode2CheckBox.UseVisualStyleBackColor = true;
-            this.Mode2CheckBox.CheckedChanged += new System.EventHandler(this.Mode2CheckBox_CheckedChanged);
-            // 
             // ManualButton
             // 
             this.ManualButton.Location = new System.Drawing.Point(236, 174);
@@ -207,7 +182,7 @@ partial class Main
             // 
             this.NotifyIcon.ContextMenuStrip = this.PanelMenu;
             this.NotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon.Icon")));
-            this.NotifyIcon.Text = "notifyIcon1";
+            this.NotifyIcon.Text = "魔兽3叠字修复";
             this.NotifyIcon.Visible = true;
             this.NotifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon_MouseClick);
             // 
@@ -217,12 +192,12 @@ partial class Main
             this.ShowFormMenuItem,
             this.ExitAppMenuItem});
             this.PanelMenu.Name = "PanelMenu";
-            this.PanelMenu.Size = new System.Drawing.Size(181, 70);
+            this.PanelMenu.Size = new System.Drawing.Size(101, 48);
             // 
             // ShowFormMenuItem
             // 
             this.ShowFormMenuItem.Name = "ShowFormMenuItem";
-            this.ShowFormMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ShowFormMenuItem.Size = new System.Drawing.Size(100, 22);
             this.ShowFormMenuItem.Text = "显示";
             this.ShowFormMenuItem.Click += new System.EventHandler(this.ShowWindow);
             // 
@@ -233,12 +208,30 @@ partial class Main
             this.ExitAppMenuItem.Text = "退出";
             this.ExitAppMenuItem.Click += new System.EventHandler(this.ExitApplication);
             // 
+            // WindowModeSelect
+            // 
+            this.WindowModeSelect.FormattingEnabled = true;
+            this.WindowModeSelect.Location = new System.Drawing.Point(69, 79);
+            this.WindowModeSelect.Name = "WindowModeSelect";
+            this.WindowModeSelect.Size = new System.Drawing.Size(121, 20);
+            this.WindowModeSelect.TabIndex = 20;
+            this.WindowModeSelect.SelectionChangeCommitted += new System.EventHandler(this.WindowModeSelect_SelectionChangeCommitted);
+            // 
+            // WindowModeLabel
+            // 
+            this.WindowModeLabel.AutoSize = true;
+            this.WindowModeLabel.Location = new System.Drawing.Point(10, 83);
+            this.WindowModeLabel.Name = "WindowModeLabel";
+            this.WindowModeLabel.Size = new System.Drawing.Size(53, 12);
+            this.WindowModeLabel.TabIndex = 21;
+            this.WindowModeLabel.Text = "窗口模式";
+            // 
             // HotKeyInputBox
             // 
             this.HotKeyInputBox.Alt = false;
             this.HotKeyInputBox.Control = false;
             this.HotKeyInputBox.KeyCode = System.Windows.Forms.Keys.None;
-            this.HotKeyInputBox.Location = new System.Drawing.Point(102, 90);
+            this.HotKeyInputBox.Location = new System.Drawing.Point(102, 107);
             this.HotKeyInputBox.Name = "HotKeyInputBox";
             this.HotKeyInputBox.Shift = false;
             this.HotKeyInputBox.ShortcutsEnabled = false;
@@ -252,16 +245,16 @@ partial class Main
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(323, 226);
+            this.Controls.Add(this.WindowModeLabel);
+            this.Controls.Add(this.WindowModeSelect);
             this.Controls.Add(this.ManualButton);
-            this.Controls.Add(this.Mode2CheckBox);
             this.Controls.Add(this.EnableTimerFixCheckBox);
             this.Controls.Add(this.IntervalInput);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.HotKeyInputBox);
             this.Controls.Add(this.VersionLabel);
-            this.Controls.Add(this.EnableFullScreenCheckBox);
             this.Controls.Add(this.FullScreenButton);
-            this.Controls.Add(this.ResetBorderButton);
+            this.Controls.Add(this.BorderMaxWindowButton);
             this.Controls.Add(this.LinkLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.EnableHotKeyCheckBox);
@@ -286,17 +279,17 @@ partial class Main
     private Button FixButton;
     private Label label1;
     private LinkLabel LinkLabel;
-    private Button ResetBorderButton;
+    private Button BorderMaxWindowButton;
     private Button FullScreenButton;
-    private CheckBox EnableFullScreenCheckBox;
     private Label VersionLabel;
     private CheckBox EnableTimerFixCheckBox;
     private NumericUpDown IntervalInput;
     private Label label2;
-    private CheckBox Mode2CheckBox;
     private Button ManualButton;
     private NotifyIcon NotifyIcon;
     private ContextMenuStrip PanelMenu;
     private ToolStripMenuItem ShowFormMenuItem;
     private ToolStripMenuItem ExitAppMenuItem;
+    private ComboBox WindowModeSelect;
+    private Label WindowModeLabel;
 }

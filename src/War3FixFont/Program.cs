@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using War3FixFont;
 
 namespace War3FixFont
 {
@@ -17,7 +12,7 @@ namespace War3FixFont
         [STAThread]
         static void Main()
         {
-            using var mutex = new Mutex(true, "eCS", out var mutexCreated);
+            using var mutex = new Mutex(true, "War3FixFont", out var mutexCreated);
             if (mutexCreated)
             {
                 Application.EnableVisualStyles();
@@ -26,11 +21,7 @@ namespace War3FixFont
             }
             else
             {
-                var current = Process.GetCurrentProcess();
-                if (Process.GetProcessesByName(current.ProcessName).Any(process => process.Id != current.Id))
-                {
-                    MessageBox.Show("程序已经运行", "魔兽争霸3叠字修复", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                MessageBox.Show("程序已经运行", "魔兽争霸3叠字修复", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
     }

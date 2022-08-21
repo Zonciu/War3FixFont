@@ -118,10 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Manual" xml:space="preserve">
-    <value>默认模式：每次修复增加1像素高度，再减1像素高度。
-
-第二模式：本次修复加1像素高度，下次修复则减1像素高度，以此减少闪烁。
-
-限制修复的间隔时间，默认CD 5秒，触发一次修复后，至少5秒之后才能触发下一次修复。</value>
+    <value>窗口模式：
+1. 保持当前: 游戏是普通窗口或无边框窗口时，每次修复增加1像素宽度，再减1像素宽度。
+            游戏是窗口最大化时，会让窗口缩放一次来完成修复。
+      
+2. 无边框全屏: 把游戏设为无边框全屏，每次修复增加1像素宽度，再减1像素宽度。
+      
+3. 有边框最大化: 把游戏设为有边框最大化窗口，会让窗口缩放一次来完成修复。
+      
+限制修复的间隔时间，默认CD 1秒，触发一次修复后，至少经过1秒才能触发下一次修复。
+    </value>
   </data>
 </root>

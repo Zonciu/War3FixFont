@@ -32,10 +32,10 @@ public class Settings
     }
 
     /// <summary>
-    /// 使用无边框全屏
+    /// 窗口模式
     /// </summary>
     [JsonProperty]
-    public bool UseFullScreen { get; set; } = true;
+    public WindowMode WindowMode { get; set; } = WindowMode.FullScreenWindow;
 
     /// <summary>
     /// 使用定时修复
@@ -50,21 +50,8 @@ public class Settings
     public int TimerInterval { get; set; } = 60;
 
     /// <summary>
-    /// 使用模式2
-    /// </summary>
-    [JsonProperty]
-    public bool UseMode2 { get; set; } = false;
-
-    /// <summary>
     /// 修复频率限制
     /// </summary>
     [JsonProperty]
-    public int FixThreshold { get; set; } = 5;
-
-    /// <summary>
-    /// 修复方向
-    /// </summary>
-    [JsonProperty]
-    [JsonConverter(typeof(StringEnumConverter))]
-    public FixDirection FixDirection { get; set; } = FixDirection.Width;
+    public int FixThreshold { get; set; } = 1;
 }
