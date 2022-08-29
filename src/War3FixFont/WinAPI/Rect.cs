@@ -12,4 +12,9 @@ public struct Rect
     public int Right; // x position of lower-right corner
 
     public int Bottom; // y position of lower-right corner
+
+    public override string ToString()
+    {
+        return $"{Top},{Right},{Bottom},{Left}";
+    }
 }

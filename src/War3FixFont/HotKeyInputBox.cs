@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace War3FixFont;
@@ -107,11 +108,13 @@ public sealed class HotKeyInputBox : TextBox
         Alt = false;
         Shift = false;
         RefreshText();
+        OnHotKeyChanged(EventArgs.Empty);
     }
 
     private void RefreshText()
     {
         Text = _hotkey.ToString();
+        Debug.WriteLine($"Out: {Text} {_hotkey.Modifier} {_hotkey.KeyCode}");
         Invalidate();
     }
 
@@ -138,6 +141,13 @@ public sealed class HotKeyInputBox : TextBox
         HotKeyChanged?.Invoke(this, e);
     }
 
+    public event EventHandler HotKeyEditing;
+
+    private void OnHotKeyEditing(EventArgs e)
+    {
+        HotKeyEditing?.Invoke(this, e);
+    }
+
     const int WM_KEYDOWN = 0x100;
 
     const int WM_KEYUP = 0x101;
@@ -152,18 +162,26 @@ public sealed class HotKeyInputBox : TextBox
 
     const int WM_IME_CHAR = 0x286;
 
+    public bool IsEditing { get; private set; }
+
     protected override bool ProcessKeyMessage(ref Message m)
     {
         if (m.Msg == WM_KEYUP || m.Msg == WM_SYSKEYUP)
         {
-            OnHotKeyChanged(EventArgs.Empty);
-        }
+            if (!HotKey.IsValid)
+            {
+                Reset();
+            }
 
-        if (m.Msg != WM_CHAR && m.Msg != WM_SYSCHAR && m.Msg != WM_IME_CHAR)
+            OnHotKeyChanged(EventArgs.Empty);
+            IsEditing = false;
+        }
+        else if (m.Msg != WM_CHAR && m.Msg != WM_SYSCHAR && m.Msg != WM_IME_CHAR)
         {
+            OnHotKeyEditing(EventArgs.Empty);
             var e = new KeyEventArgs((Keys)(int)(long)m.WParam | ModifierKeys);
 
-            if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back)
+            if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back || e.KeyCode == Keys.Escape)
             {
                 Reset();
             }
@@ -171,6 +189,7 @@ public sealed class HotKeyInputBox : TextBox
             {
                 if (m.Msg == WM_KEYDOWN || m.Msg == WM_SYSKEYDOWN || e.KeyCode == Keys.PrintScreen)
                 {
+                    IsEditing = true;
                     Control = e.Control;
                     Shift = e.Shift;
                     Alt = e.Alt;

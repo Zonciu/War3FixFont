@@ -14,7 +14,24 @@ public static class FixHelper
     public static IntPtr GetWar3Window()
     {
         var window = API.FindWindowA("Warcraft III", "Warcraft III");
-        return window;
+        if (window != IntPtr.Zero)
+        {
+            return window;
+        }
+
+        window = API.FindWindowA("Black Warcraft III", "Warcraft III");
+        if (window == IntPtr.Zero)
+        {
+            return IntPtr.Zero;
+        }
+
+        var child = API.GetWindow(window, API.GW_CHILD);
+        return child;
+    }
+
+    public static IntPtr Get5211War3Window()
+    {
+        return API.FindWindowA("Black Warcraft III", "Warcraft III");
     }
 
     /// <summary>

@@ -7,9 +7,11 @@ namespace War3FixFont;
 
 public class HotKey
 {
-    public const string DefaultString = "0,1,1,D";
+    public static readonly HotKey DefaultFixHotKey = new("0,1,1,D");
 
-    public static readonly HotKey Default = new(DefaultString);
+    public static readonly HotKey DefaultShowMeHotKey = new("1,0,0,Q");
+
+    public static readonly HotKey Empty = new("");
 
     public Keys KeyCode { get; set; }
 
@@ -19,7 +21,12 @@ public class HotKey
 
     public bool Shift { get; set; }
 
-    public bool IsValid => Control | Shift | Alt && KeyCode != Keys.None && KeyCode != Keys.Back && KeyCode != Keys.Delete && KeyCode != Keys.PrintScreen;
+    public bool IsValid => Control | Shift | Alt
+                        && KeyCode != Keys.None
+                        && KeyCode != Keys.Back
+                        && KeyCode != Keys.Delete
+                        && KeyCode != Keys.Escape
+                        && KeyCode != Keys.PrintScreen;
 
     public ModifierKeys Modifier
     {
@@ -47,6 +54,14 @@ public class HotKey
 
     public HotKey()
     { }
+
+    public HotKey(ModifierKeys modifierKeys, Keys keyCode)
+    {
+        Control = (modifierKeys & ModifierKeys.Control) != 0;
+        Shift = (modifierKeys & ModifierKeys.Shift) != 0;
+        Alt = (modifierKeys & ModifierKeys.Alt) != 0;
+        KeyCode = keyCode;
+    }
 
     public HotKey(string keys)
     {
@@ -147,5 +162,20 @@ public class HotKey
             Alt = Alt,
             KeyCode = KeyCode
         };
+    }
+
+    public bool SameAs(KeyPressedEventArgs args)
+    {
+        return args.Modifier == Modifier && args.Key == KeyCode;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is not HotKey h)
+        {
+            return false;
+        }
+
+        return h!.Modifier == Modifier && h.KeyCode == KeyCode;
     }
 }

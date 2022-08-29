@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using War3FixFont.WinAPI;
@@ -15,8 +16,6 @@ public sealed class KeyboardHook : IDisposable
 
     [DllImport("user32.dll")]
     private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
-    public bool Registered { get; private set; }
 
     /// <summary>
     /// 内部窗体，用于获取全局热键事件
@@ -57,7 +56,9 @@ public sealed class KeyboardHook : IDisposable
 
     private readonly Window _window = new();
 
-    private const int HotKeyId = 1;
+    private int _hotKeyId = 1;
+
+    private HashSet<int> _ids = new();
 
     public KeyboardHook()
     {
@@ -70,17 +71,33 @@ public sealed class KeyboardHook : IDisposable
     /// </summary>
     /// <param name="modifier">修饰按键</param>
     /// <param name="key">主要按键</param>
-    public bool RegisterHotKey(ModifierKeys modifier, Keys key)
+    /// <param name="id">快捷键ID</param>
+    public int? RegisterHotKey(ModifierKeys modifier, Keys key, int id = 0)
     {
-        var result = RegisterHotKey(_window.Handle, HotKeyId, (uint)modifier, (uint)key);
-        Registered = result;
-        return result;
+        if (id == 0)
+        {
+            id = _hotKeyId++;
+        }
+        else
+        {
+            if (_ids.Contains(id))
+            {
+                MessageBox.Show("快捷键ID冲突");
+            }
+            else
+            {
+                _ids.Add(id);
+            }
+        }
+
+        var result = RegisterHotKey(_window.Handle, id, (uint)modifier, (uint)key);
+        return result ? id : null;
     }
 
-    public void UnregisterHotKey()
+    public bool UnregisterHotKey(int hotKeyId)
     {
-        var s = UnregisterHotKey(_window.Handle, HotKeyId);
-        Registered = false;
+        _ids.Remove(hotKeyId);
+        return UnregisterHotKey(_window.Handle, hotKeyId);
     }
 
     /// <summary>
@@ -91,8 +108,15 @@ public sealed class KeyboardHook : IDisposable
     public void Dispose()
     {
         // 注销热键
-        UnregisterHotKey(_window.Handle, HotKeyId);
-        Registered = false;
+        for (int i = 0; i < _hotKeyId; i++)
+        {
+            UnregisterHotKey(_window.Handle, i);
+        }
+
+        foreach (var id in _ids)
+        {
+            UnregisterHotKey(_window.Handle, id);
+        }
 
         // 释放窗体
         _window.Dispose();
