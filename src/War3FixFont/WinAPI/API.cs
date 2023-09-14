@@ -99,6 +99,17 @@ public static class API
     [DllImport("user32.dll")]
     public static extern int GetSystemMetrics(int nIndex);
 
+    /// <summary>
+    /// 获取系统信息
+    /// </summary>
+    /// <param name="uiAction"></param>
+    /// <param name="uiParam"></param>
+    /// <param name="pvParam"></param>
+    /// <param name="fWinIni"></param>
+    /// <returns></returns>
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool SystemParametersInfo(int uiAction, int uiParam, out Rect pvParam, int fWinIni);
+
     public delegate void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
     /// <summary>
@@ -169,6 +180,8 @@ public static class API
     public const uint WINEVENT_OUTOFCONTEXT = 0;
 
     public const uint EVENT_SYSTEM_FOREGROUND = 3;
+
+    public const int SPI_GETWORKAREA = 0x0030;
 
     public static int GetTitleBarHeight()
         => GetSystemMetrics(SM_CYFRAME)

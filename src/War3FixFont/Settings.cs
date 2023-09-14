@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace War3FixFont;
 
@@ -16,13 +15,13 @@ public class Settings
     public bool UseHotKey { get; set; } = true;
 
     /// <summary>
-    /// 快捷键
+    /// 修复快捷键
     /// </summary>
     [JsonProperty("HotKey")]
     public string HotKeyString { get; set; } = "0,1,1,D";
 
     /// <summary>
-    /// 快捷键
+    /// 修复快捷键
     /// </summary>
     [JsonIgnore]
     public HotKey HotKey
@@ -51,7 +50,7 @@ public class Settings
     /// 窗口模式
     /// </summary>
     [JsonProperty]
-    public WindowMode WindowMode { get; set; } = WindowMode.FullScreenWindow;
+    public WindowMode WindowMode { get; set; } = WindowMode.FullScreen;
 
     /// <summary>
     /// 使用定时修复
@@ -75,11 +74,41 @@ public class Settings
     /// 自动应用窗口模式
     /// </summary>
     [JsonProperty]
-    public bool UseAutoWindow { get; set; } = true;
+    public bool AutoApplyWindow { get; set; } = true;
 
     /// <summary>
     /// 锁定鼠标
     /// </summary>
     [JsonProperty]
     public bool LockCursor { get; set; } = true;
+
+    /// <summary>
+    /// 自定义宽度
+    /// </summary>
+    [JsonProperty]
+    public int Width { get; set; }
+
+    /// <summary>
+    /// 自定义高度
+    /// </summary>
+    [JsonProperty]
+    public int Height { get; set; }
+
+    /// <summary>
+    /// 启用自定义位置
+    /// </summary>
+    [JsonProperty]
+    public bool UseCustomPosition { get; set; }
+
+    /// <summary>
+    /// 自定义位置X
+    /// </summary>
+    [JsonProperty]
+    public int X { get; set; }
+
+    /// <summary>
+    /// 自定义位置Y
+    /// </summary>
+    [JsonProperty]
+    public int Y { get; set; }
 }

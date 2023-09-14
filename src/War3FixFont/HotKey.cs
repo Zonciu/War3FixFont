@@ -176,6 +176,36 @@ public class HotKey
             return false;
         }
 
-        return h!.Modifier == Modifier && h.KeyCode == KeyCode;
+        return Equals(h);
+    }
+
+    protected bool Equals(HotKey other)
+    {
+        return KeyCode == other.KeyCode
+            && Control == other.Control
+            && Alt == other.Alt
+            && Shift == other.Shift;
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hashCode = (int)KeyCode;
+            hashCode = (hashCode * 397) ^ Control.GetHashCode();
+            hashCode = (hashCode * 397) ^ Alt.GetHashCode();
+            hashCode = (hashCode * 397) ^ Shift.GetHashCode();
+            return hashCode;
+        }
+    }
+
+    public static bool operator ==(HotKey key1, HotKey key2)
+    {
+        return key1 != null && key2 != null && key1.Equals(key2);
+    }
+
+    public static bool operator !=(HotKey key1, HotKey key2)
+    {
+        return !(key1 == key2);
     }
 }

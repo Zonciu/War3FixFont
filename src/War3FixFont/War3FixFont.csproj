@@ -60,7 +60,7 @@
     <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -89,8 +89,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ComboBoxItem.cs" />
+    <Compile Include="Fixer.cs" />
     <Compile Include="SettingsManager.cs" />
-    <Compile Include="FixHelper.cs" />
     <Compile Include="HotKey.cs" />
     <Compile Include="HotKeyInputBox.cs">
       <SubType>Component</SubType>
@@ -167,7 +167,7 @@
   <ItemGroup>
     <PackageReference Include="Costura.Fody" Version="5.7.0">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>runtime; compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Fody" Version="6.6.3">
       <PrivateAssets>all</PrivateAssets>

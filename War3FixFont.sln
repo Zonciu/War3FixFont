@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "War3FixFont", "src\War3FixFont\War3FixFont.csproj", "{8C88E5B7-BFCA-4A69-AAC4-F73983255481}"
 EndProject
 Global
@@ -12,5 +15,11 @@ Global
 		{8C88E5B7-BFCA-4A69-AAC4-F73983255481}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C88E5B7-BFCA-4A69-AAC4-F73983255481}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C88E5B7-BFCA-4A69-AAC4-F73983255481}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {13072089-63E4-4979-9B2B-63ABD0E4D5C4}
 	EndGlobalSection
 EndGlobal

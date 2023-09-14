@@ -8,20 +8,26 @@ namespace War3FixFont;
 public enum WindowMode
 {
     /// <summary>
-    /// 保持当前窗口
-    /// </summary>
-    [Description("保持当前")]
-    KeepCurrent,
-
-    /// <summary>
     /// 全屏窗口
     /// </summary>
     [Description("无边框全屏")]
-    FullScreenWindow,
+    FullScreen,
 
     /// <summary>
     /// 最大化窗口
     /// </summary>
-    [Description("有边框最大化")]
-    MaxWindows
+    [Description("最大化窗口")]
+    Maximum,
+
+    /// <summary>
+    /// 4:3窗口
+    /// </summary>
+    [Description("4:3窗口")]
+    Ratio43,
+
+    /// <summary>
+    /// 自定义窗口尺寸
+    /// </summary>
+    [Description("自定义窗口")]
+    Custom
 }

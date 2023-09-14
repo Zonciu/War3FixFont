@@ -52,8 +52,6 @@ public partial class Main : Form
     /// </summary>
     private readonly Timer _war3RunningMonitor = new();
 
-    private bool _isSetAutoWindow;
-
     private const int FixHotKeyId = 1;
 
     private int _fixHotKeyId;
@@ -66,9 +64,14 @@ public partial class Main : Form
 
     public Settings Settings => SettingsManager.Settings;
 
+    public readonly Fixer Fixer;
+
+    private readonly bool _inited;
+
     public Main()
     {
         SettingsManager.Load();
+        Fixer = new() { Settings = SettingsManager.Settings };
         _fixThresholdTicks = Settings.FixThreshold * 1000 * 10000;
 
         InitializeComponent();
@@ -84,8 +87,8 @@ public partial class Main : Form
         EnableTimerFixCheckBox.Checked = Settings.UseTimer;
 
         // 读取窗口配置
-        WindowModeSelect.DisplayMember = "Name";
-        WindowModeSelect.ValueMember = "Value";
+        WindowModeComboBox.DisplayMember = "Name";
+        WindowModeComboBox.ValueMember = "Value";
         var windowModeSource = Enum.GetValues(typeof(WindowMode))
                                    .Cast<WindowMode>()
                                    .Select(
@@ -96,8 +99,11 @@ public partial class Main : Form
                                         })
                                    .OrderBy(item => item.Value)
                                    .ToList();
-        WindowModeSelect.DataSource = windowModeSource;
-        WindowModeSelect.SelectedItem = windowModeSource.Single(e => e.Value == Settings.WindowMode);
+        WindowModeComboBox.SelectedIndexChanged -= WindowModeComboBox_SelectedIndexChanged;
+        WindowModeComboBox.DataSource = windowModeSource;
+        var mode = windowModeSource.Single(e => e.Value == Settings.WindowMode);
+        WindowModeComboBox.SelectedItem = mode;
+        WindowModeComboBox.SelectedIndexChanged += WindowModeComboBox_SelectedIndexChanged;
 
         // 读取修复快捷键配置
         var hotKey = Settings.HotKey;
@@ -109,7 +115,6 @@ public partial class Main : Form
         {
             Settings.HotKey = HotKey.DefaultFixHotKey;
             HotKeyInputBox.HotKey = Settings.HotKey;
-            SettingsManager.Save();
         }
 
         HotKeyInputBox.HotKeyEditing += (_, _) =>
@@ -123,6 +128,17 @@ public partial class Main : Form
         EnableHotKeyCheckBox.Checked = Settings.UseHotKey;
         UpdateFixHotKey();
 
+        // 读取窗口模式
+        var useCustomMode = Settings.WindowMode == WindowMode.Custom;
+        WidthInput.Enabled = useCustomMode;
+        WidthInput.Value = Settings.Width;
+        HeightInput.Enabled = useCustomMode;
+        HeightInput.Value = Settings.Height;
+        CustomPositionCheckBox.Enabled = useCustomMode;
+        CustomPositionCheckBox.Checked = Settings.UseCustomPosition;
+        CustomPositionX.Enabled = useCustomMode && CustomPositionCheckBox.Checked;
+        CustomPositionY.Enabled = useCustomMode && CustomPositionCheckBox.Checked;
+
         // 读取显示窗口快捷键配置
         if (Settings.ShowMeHotKey.IsValid)
         {
@@ -132,7 +148,6 @@ public partial class Main : Form
         {
             Settings.ShowMeHotKey = HotKey.DefaultShowMeHotKey;
             ShowMeHotKeyInputBox.HotKey = Settings.ShowMeHotKey;
-            SettingsManager.Save();
         }
 
         ShowMeHotKeyInputBox.HotKeyEditing += (_, _) =>
@@ -153,13 +168,16 @@ public partial class Main : Form
         }
 
         // 扫描魔兽3进程
-        AutoWindowCheckBox.Checked = Settings.UseAutoWindow;
+        AutoApplyCheckBox.Checked = Settings.AutoApplyWindow;
         _war3RunningMonitor.Interval = 2000;
         _war3RunningMonitor.Elapsed += CheckWar3Process;
-        if (Settings.UseAutoWindow)
+        if (Settings.AutoApplyWindow)
         {
             _war3RunningMonitor.Start();
         }
+
+        SettingsManager.Save();
+        _inited = true;
     }
 
     /// <summary>
@@ -258,22 +276,7 @@ public partial class Main : Form
             if (nowTicks - _lastFixTicks >= _fixThresholdTicks)
             {
                 _lastFixTicks = nowTicks;
-
-                switch (Settings.WindowMode)
-                {
-                case WindowMode.KeepCurrent:
-                    FixHelper.FixCurrentWindow();
-                    break;
-                case WindowMode.MaxWindows:
-                    FixHelper.Border();
-                    FixHelper.FixMaxWindow();
-                    break;
-                case WindowMode.FullScreenWindow:
-                default:
-                    FixHelper.Borderless();
-                    FixHelper.FixFullScreenWindow();
-                    break;
-                }
+                Fixer.Fix();
             }
         }
         catch (Exception e)
@@ -333,35 +336,17 @@ public partial class Main : Form
     }
 
     /// <summary>
-    /// 有边框全屏
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void BorderMaxWindowButton_Click(object sender, EventArgs e)
-    {
-        FixHelper.Border();
-        FixHelper.NormalWindow();
-        FixHelper.MaxWindow();
-    }
-
-    /// <summary>
-    /// 无边框全屏
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void FullScreenButton_Click(object sender, EventArgs e)
-    {
-        FixHelper.Borderless();
-        FixHelper.FullScreen();
-    }
-
-    /// <summary>
     /// 更新定时间隔
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     private void IntervalInput_ValueChanged(object sender, EventArgs e)
     {
+        if (!_inited || Settings.TimerInterval == (int)IntervalInput.Value)
+        {
+            return;
+        }
+
         Settings.TimerInterval = (int)IntervalInput.Value;
         SettingsManager.Save();
         if (_timer.Enabled)
@@ -379,6 +364,11 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void EnableTimerFixCheckBox_CheckedChanged(object sender, EventArgs e)
     {
+        if (!_inited || Settings.UseTimer == EnableTimerFixCheckBox.Checked)
+        {
+            return;
+        }
+
         Settings.UseTimer = EnableTimerFixCheckBox.Checked;
         SettingsManager.Save();
         if (!EnableTimerFixCheckBox.Checked)
@@ -407,6 +397,11 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void EnableHotKeyCheckBox_CheckedChanged(object sender, EventArgs e)
     {
+        if (!_inited || Settings.UseHotKey == EnableHotKeyCheckBox.Checked)
+        {
+            return;
+        }
+
         Settings.UseHotKey = EnableHotKeyCheckBox.Checked;
         SettingsManager.Save();
         UpdateFixHotKey();
@@ -420,7 +415,13 @@ public partial class Main : Form
     private void HotKeyInputBox_HotKeyChanged(object sender, EventArgs e)
     {
         var hotkey = HotKeyInputBox.HotKey;
-        Settings.HotKey = hotkey.IsValid ? hotkey : HotKey.Empty;
+        hotkey = hotkey.IsValid ? hotkey : HotKey.Empty;
+        if (!_inited || Settings.HotKey == hotkey)
+        {
+            return;
+        }
+
+        Settings.HotKey = hotkey;
         SettingsManager.Save();
         UpdateFixHotKey();
     }
@@ -435,22 +436,6 @@ public partial class Main : Form
         using var manual = new Manual();
         manual.StartPosition = FormStartPosition.CenterParent;
         manual.ShowDialog();
-    }
-
-    /// <summary>
-    /// 窗口模式改变
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void WindowModeSelect_SelectionChangeCommitted(object sender, EventArgs e)
-    {
-        var mode = (ComboBoxItem<WindowMode>)WindowModeSelect.SelectedItem;
-        Settings.WindowMode = mode.Value;
-        SettingsManager.Save();
-        if (Settings.UseAutoWindow)
-        {
-            ApplyWindowMode();
-        }
     }
 
     #region 系统托盘
@@ -528,7 +513,8 @@ public partial class Main : Form
         if (nowTicks - _lastToggleWindowTicks >= ToggleWindowThresholdTicks)
         {
             _lastToggleWindowTicks = nowTicks;
-            if (Visible)
+            var foregroundWindow = API.GetForegroundWindow();
+            if (Visible && Handle == foregroundWindow)
             {
                 HideWindow();
             }
@@ -547,7 +533,13 @@ public partial class Main : Form
     private void ShowMeHotKeyInputBox_HotKeyChanged(object sender, EventArgs e)
     {
         var hotkey = ShowMeHotKeyInputBox.HotKey;
-        Settings.ShowMeHotKey = hotkey.IsValid ? hotkey : HotKey.DefaultShowMeHotKey;
+        hotkey = hotkey.IsValid ? hotkey : HotKey.DefaultShowMeHotKey;
+        if (!_inited || Settings.ShowMeHotKey == hotkey)
+        {
+            return;
+        }
+
+        Settings.ShowMeHotKey = hotkey;
         SettingsManager.Save();
         UpdateShowMeHotKey();
     }
@@ -590,15 +582,16 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void AutoWindowCheckBox_CheckedChanged(object sender, EventArgs e)
     {
-        Settings.UseAutoWindow = AutoWindowCheckBox.Checked;
-        SettingsManager.Save();
-        if (Settings.UseAutoWindow)
+        if (!_inited || Settings.AutoApplyWindow == AutoApplyCheckBox.Checked)
         {
-            if (_isSetAutoWindow)
-            {
-                ApplyWindowMode();
-            }
+            return;
+        }
 
+        Settings.AutoApplyWindow = AutoApplyCheckBox.Checked;
+        SettingsManager.Save();
+        if (Settings.AutoApplyWindow)
+        {
+            Apply();
             _war3RunningMonitor.Start();
         }
         else
@@ -614,53 +607,31 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void CheckWar3Process(object sender, ElapsedEventArgs e)
     {
-        if (!Settings.UseAutoWindow)
+        if (!Settings.AutoApplyWindow)
         {
-            _isSetAutoWindow = false;
             return;
         }
 
-        var window = FixHelper.GetWar3Window();
+        var window = Fixer.GetWar3Window();
         if (window == IntPtr.Zero)
         {
-            _isSetAutoWindow = false;
+            return;
         }
-        else
-        {
-            if (!_isSetAutoWindow)
+
+        Task.Run(
+            async () =>
             {
-                _isSetAutoWindow = true;
-                Task.Run(
-                    async () =>
-                    {
-                        await Task.Delay(800);
-                        ApplyWindowMode();
-                    });
-            }
-        }
+                await Task.Delay(800);
+                Apply();
+            });
     }
 
     /// <summary>
     /// 应用窗口模式
     /// </summary>
-    private void ApplyWindowMode()
+    private void Apply()
     {
-        switch (Settings.WindowMode)
-        {
-        case WindowMode.FullScreenWindow:
-            FixHelper.Borderless();
-            FixHelper.FullScreen();
-            break;
-        case WindowMode.MaxWindows:
-            FixHelper.Border();
-            FixHelper.MaxWindow();
-            break;
-        case WindowMode.KeepCurrent:
-        default:
-            break;
-        }
-
-        SetCursor();
+        Fixer.Apply();
     }
 
     #endregion
@@ -674,52 +645,13 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void LockCursorCheckBox_CheckedChanged(object sender, EventArgs e)
     {
-        Settings.LockCursor = LockCursorCheckBox.Checked;
-        SettingsManager.Save();
-    }
-
-    /// <summary>
-    /// 锁定鼠标范围
-    /// </summary>
-    private void SetCursor()
-    {
-        var war3Window = FixHelper.GetWar3Window();
-        if (war3Window == IntPtr.Zero)
+        if (!_inited || Settings.LockCursor == LockCursorCheckBox.Checked)
         {
             return;
         }
 
-        var handle = API.GetForegroundWindow();
-        if (handle != war3Window)
-        {
-            var war35211 = FixHelper.Get5211War3Window();
-            if (handle == war35211 && handle != IntPtr.Zero)
-            {
-                handle = API.GetWindow(handle, API.GW_CHILD);
-            }
-        }
-
-        if (handle == war3Window && Settings.LockCursor)
-        {
-            API.GetWindowRect(war3Window, out var windowRect);
-            if (windowRect.Top == -32000)
-            {
-                // 窗口已最小化
-                return;
-            }
-
-            if (Settings.WindowMode != WindowMode.FullScreenWindow)
-            {
-                var height = API.GetTitleBarHeight();
-                var border = API.GetBorder();
-                var rect = new Rect { Top = windowRect.Top + height, Bottom = windowRect.Bottom - border, Left = windowRect.Left + border, Right = windowRect.Right - border };
-                API.ClipCursor(ref rect);
-            }
-            else
-            {
-                API.ClipCursor(ref windowRect);
-            }
-        }
+        Settings.LockCursor = LockCursorCheckBox.Checked;
+        SettingsManager.Save();
     }
 
     /// <summary>
@@ -734,7 +666,7 @@ public partial class Main : Form
     /// <param name="dwmsEventTime"></param>
     public void LockCursorEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
     {
-        SetCursor();
+        Fixer.LockCursor();
     }
 
     /// <summary>
@@ -758,4 +690,116 @@ public partial class Main : Form
     }
 
     #endregion
+
+    /// <summary>
+    /// 自定义宽度
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void WidthInput_ValueChanged(object sender, EventArgs e)
+    {
+        if (!_inited || Settings.Width == (int)WidthInput.Value)
+        {
+            return;
+        }
+
+        Settings.Width = (int)WidthInput.Value;
+        SettingsManager.Save();
+    }
+
+    /// <summary>
+    /// 自定义高度
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void HeightInput_ValueChanged(object sender, EventArgs e)
+    {
+        if (!_inited || Settings.Height == (int)HeightInput.Value)
+        {
+            return;
+        }
+
+        Settings.Height = (int)HeightInput.Value;
+        SettingsManager.Save();
+    }
+
+    /// <summary>
+    /// 自定义位置X
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void CustomPositionX_ValueChanged(object sender, EventArgs e)
+    {
+        if (!_inited || Settings.X == (int)CustomPositionX.Value)
+        {
+            return;
+        }
+
+        Settings.X = (int)CustomPositionX.Value;
+        SettingsManager.Save();
+    }
+
+    /// <summary>
+    /// 自定义位置Y
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void CustomPositionY_ValueChanged(object sender, EventArgs e)
+    {
+        if (!_inited || Settings.Y == (int)CustomPositionY.Value)
+        {
+            return;
+        }
+
+        Settings.Y = (int)CustomPositionY.Value;
+        SettingsManager.Save();
+    }
+
+    /// <summary>
+    /// 启用/停用自定义位置
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void CustomPositionCheckBox_CheckedChanged(object sender, EventArgs e)
+    {
+        if (!_inited || Settings.UseCustomPosition == CustomPositionCheckBox.Checked)
+        {
+            return;
+        }
+
+        Settings.UseCustomPosition = CustomPositionCheckBox.Checked;
+        SettingsManager.Save();
+        var enableCustomPosition = Settings.WindowMode == WindowMode.Custom && CustomPositionCheckBox.Checked;
+        CustomPositionX.Enabled = enableCustomPosition;
+        CustomPositionY.Enabled = enableCustomPosition;
+    }
+
+    /// <summary>
+    /// 窗口模式改变
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void WindowModeComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        var mode = (ComboBoxItem<WindowMode>)WindowModeComboBox.SelectedItem;
+        if (!_inited || Settings.WindowMode == mode.Value)
+        {
+            return;
+        }
+
+        Settings.WindowMode = mode.Value;
+        SettingsManager.Save();
+
+        var useCustomMode = mode.Value == WindowMode.Custom;
+        WidthInput.Enabled = useCustomMode;
+        HeightInput.Enabled = useCustomMode;
+        CustomPositionCheckBox.Enabled = useCustomMode;
+        CustomPositionX.Enabled = useCustomMode && CustomPositionCheckBox.Checked;
+        CustomPositionY.Enabled = useCustomMode && CustomPositionCheckBox.Checked;
+
+        if (Settings.AutoApplyWindow)
+        {
+            Apply();
+        }
+    }
 }

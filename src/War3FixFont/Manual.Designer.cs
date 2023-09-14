@@ -53,7 +53,7 @@
             this.Controls.Add(this.ManualContent);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Manual";
-            this.Text = "Manual";
+            this.Text = "使用说明";
             this.ResumeLayout(false);
             this.PerformLayout();
 
