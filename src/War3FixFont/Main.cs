@@ -281,7 +281,7 @@ public partial class Main : Form
         }
         catch (Exception e)
         {
-            MessageBox.Show(e.Message);
+            MessageBox.Show($@"叠字修复时异常: {e.Message}");
         }
         finally
         {
