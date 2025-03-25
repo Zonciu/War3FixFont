@@ -341,12 +341,8 @@ partial class Main
             // 
             // ShowMeHotKeyInputBox
             // 
-            this.ShowMeHotKeyInputBox.Alt = false;
-            this.ShowMeHotKeyInputBox.Control = false;
-            this.ShowMeHotKeyInputBox.KeyCode = System.Windows.Forms.Keys.None;
             this.ShowMeHotKeyInputBox.Location = new System.Drawing.Point(112, 251);
             this.ShowMeHotKeyInputBox.Name = "ShowMeHotKeyInputBox";
-            this.ShowMeHotKeyInputBox.Shift = false;
             this.ShowMeHotKeyInputBox.ShortcutsEnabled = false;
             this.ShowMeHotKeyInputBox.Size = new System.Drawing.Size(153, 21);
             this.ShowMeHotKeyInputBox.TabIndex = 24;
@@ -355,13 +351,9 @@ partial class Main
             // 
             // HotKeyInputBox
             // 
-            this.HotKeyInputBox.Alt = false;
             this.HotKeyInputBox.BackColor = System.Drawing.SystemColors.Window;
-            this.HotKeyInputBox.Control = false;
-            this.HotKeyInputBox.KeyCode = System.Windows.Forms.Keys.None;
             this.HotKeyInputBox.Location = new System.Drawing.Point(112, 183);
             this.HotKeyInputBox.Name = "HotKeyInputBox";
-            this.HotKeyInputBox.Shift = false;
             this.HotKeyInputBox.ShortcutsEnabled = false;
             this.HotKeyInputBox.Size = new System.Drawing.Size(153, 21);
             this.HotKeyInputBox.TabIndex = 12;

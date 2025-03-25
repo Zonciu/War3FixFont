@@ -12,7 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <LangVersion>10</LangVersion>
+    <LangVersion>11</LangVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <Nullable>disable</Nullable>
     <PublishUrl>publish\</PublishUrl>
@@ -91,7 +91,7 @@
     <Compile Include="ComboBoxItem.cs" />
     <Compile Include="Fixer.cs" />
     <Compile Include="SettingsManager.cs" />
-    <Compile Include="HotKey.cs" />
+    <Compile Include="Hotkey.cs" />
     <Compile Include="HotKeyInputBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -173,7 +173,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

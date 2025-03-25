@@ -1,6 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace War3FixFont;
@@ -10,118 +8,27 @@ namespace War3FixFont;
 /// </summary>
 public sealed class HotKeyInputBox : TextBox
 {
-    #region Properties to hide from the designer
+    private Hotkey _hotkey;
 
-    [Browsable(false)]
-    public new string[] Lines
+    public Hotkey Hotkey
     {
-        get { return new string[] { Text }; }
-        private set => base.Lines = value;
-    }
-
-    [Browsable(false)]
-    public override bool Multiline => false;
-
-    [Browsable(false)]
-    public new char PasswordChar { get; set; }
-
-    [Browsable(false)]
-    public new ScrollBars ScrollBars { get; set; }
-
-    [Browsable(false)]
-    public override bool ShortcutsEnabled => false;
-
-    [Browsable(false)]
-    public override string Text
-    {
-        get => base.Text;
-        set => base.Text = value;
-    }
-
-    [Browsable(false)]
-    public new bool WordWrap { get; set; }
-
-    #endregion
-
-    #region Focus detection - use this to stop hotkeys being triggered in your code
-
-    private static Control FindFocusedControl(Control control)
-    {
-        var container = control as ContainerControl;
-        while (container != null)
-        {
-            control = container.ActiveControl;
-            container = control as ContainerControl;
-        }
-
-        return control;
-    }
-
-    public bool IsFocused => FindFocusedControl(Form.ActiveForm) == this;
-
-    public static bool TypeIsFocused => FindFocusedControl(Form.ActiveForm) is HotKeyInputBox;
-
-    #endregion
-
-    private HotKey _hotkey = new();
-
-    [Browsable(false)]
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public HotKey HotKey
-    {
-        get => _hotkey.Clone();
+        get => _hotkey;
         set
         {
-            _hotkey = value.Clone();
+            _hotkey = value;
             RefreshText();
+            OnHotKeyChanged(EventArgs.Empty);
         }
-    }
-
-    public Keys KeyCode
-    {
-        get => _hotkey.KeyCode;
-        set => _hotkey.KeyCode = value;
-    }
-
-    public bool Control
-    {
-        get => _hotkey.Control;
-        set => _hotkey.Control = value;
-    }
-
-    public bool Alt
-    {
-        get => _hotkey.Alt;
-        set => _hotkey.Alt = value;
-    }
-
-    public bool Shift
-    {
-        get => _hotkey.Shift;
-        set => _hotkey.Shift = value;
     }
 
     public void Reset()
     {
-        KeyCode = Keys.None;
-        Control = false;
-        Alt = false;
-        Shift = false;
-        RefreshText();
-        OnHotKeyChanged(EventArgs.Empty);
+        Hotkey = default;
     }
 
     private void RefreshText()
     {
         Text = _hotkey.ToString();
-        Debug.WriteLine($"Out: {Text} {_hotkey.Modifier} {_hotkey.KeyCode}");
-        Invalidate();
-    }
-
-    protected override void OnPaint(PaintEventArgs e)
-    {
-        RefreshText();
-        base.OnPaint(e);
     }
 
     protected override void OnMouseMove(MouseEventArgs e)
@@ -164,53 +71,46 @@ public sealed class HotKeyInputBox : TextBox
 
     public bool IsEditing { get; private set; }
 
+    private Hotkey _tempHotkey;
+
     protected override bool ProcessKeyMessage(ref Message m)
     {
         if (m.Msg == WM_KEYUP || m.Msg == WM_SYSKEYUP)
         {
-            if (!HotKey.IsValid)
+            if (!_tempHotkey.IsValid)
             {
-                Reset();
+                RefreshText();
+                return true;
             }
 
-            OnHotKeyChanged(EventArgs.Empty);
             IsEditing = false;
+            Hotkey = _tempHotkey;
         }
         else if (m.Msg != WM_CHAR && m.Msg != WM_SYSCHAR && m.Msg != WM_IME_CHAR)
         {
             OnHotKeyEditing(EventArgs.Empty);
             var e = new KeyEventArgs((Keys)(int)(long)m.WParam | ModifierKeys);
 
-            if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back || e.KeyCode == Keys.Escape)
+            if (e.KeyCode is Keys.Delete or Keys.Back or Keys.Escape)
             {
                 Reset();
             }
             else
             {
-                if (m.Msg == WM_KEYDOWN || m.Msg == WM_SYSKEYDOWN || e.KeyCode == Keys.PrintScreen)
+                if (m.Msg is WM_KEYDOWN or WM_SYSKEYDOWN)
                 {
                     IsEditing = true;
-                    Control = e.Control;
-                    Shift = e.Shift;
-                    Alt = e.Alt;
+                    var keyCode = Keys.None;
+                    if (e.KeyCode != Keys.ShiftKey && e.KeyCode != Keys.ControlKey && e.KeyCode != Keys.Menu)
+                    {
+                        keyCode = e.KeyCode;
+                    }
 
-                    if (e.KeyCode != Keys.ShiftKey
-                     && e.KeyCode != Keys.ControlKey
-                     && e.KeyCode != Keys.Menu)
-                    {
-                        KeyCode = e.KeyCode;
-                    }
-                    else
-                    {
-                        KeyCode = Keys.None;
-                    }
+                    _tempHotkey = new(keyCode, e.Control, e.Alt, e.Shift);
+                    Text = _tempHotkey.ToString();
                 }
             }
 
-            // Pretty readable output
-            RefreshText();
-
-            // Select the end of our textbox
             Select(TextLength, 0);
         }
 

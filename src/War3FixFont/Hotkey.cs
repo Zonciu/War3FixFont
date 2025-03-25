@@ -5,13 +5,13 @@ using War3FixFont.WinAPI;
 
 namespace War3FixFont;
 
-public class HotKey
+public struct Hotkey : IEquatable<Hotkey>
 {
-    public static readonly HotKey DefaultFixHotKey = new("0,1,1,D");
+    public static readonly Hotkey DefaultFixHotkey = new("0,1,1,D");
 
-    public static readonly HotKey DefaultShowMeHotKey = new("1,0,0,Q");
+    public static readonly Hotkey DefaultShowMeHotkey = new("1,0,0,Q");
 
-    public static readonly HotKey Empty = new("");
+    public static readonly Hotkey Empty = new("");
 
     public Keys KeyCode { get; set; }
 
@@ -21,7 +21,7 @@ public class HotKey
 
     public bool Shift { get; set; }
 
-    public bool IsValid => Control | Shift | Alt
+    public bool IsValid => (Control || Shift || Alt)
                         && KeyCode != Keys.None
                         && KeyCode != Keys.Back
                         && KeyCode != Keys.Delete
@@ -52,10 +52,15 @@ public class HotKey
         }
     }
 
-    public HotKey()
-    { }
+    public Hotkey(Keys keyCode, bool control, bool alt, bool shift)
+    {
+        KeyCode = keyCode;
+        Control = control;
+        Alt = alt;
+        Shift = shift;
+    }
 
-    public HotKey(ModifierKeys modifierKeys, Keys keyCode)
+    public Hotkey(ModifierKeys modifierKeys, Keys keyCode)
     {
         Control = (modifierKeys & ModifierKeys.Control) != 0;
         Shift = (modifierKeys & ModifierKeys.Shift) != 0;
@@ -63,7 +68,7 @@ public class HotKey
         KeyCode = keyCode;
     }
 
-    public HotKey(string keys)
+    public Hotkey(string keys)
     {
         var settings = keys.Split(',');
         if (settings.Length == 4)
@@ -131,9 +136,9 @@ public class HotKey
         return $"{(Control ? "1" : "0")},{(Shift ? "1" : "0")},{(Alt ? "1" : "0")},{KeyCode:G}";
     }
 
-    public static HotKey Deserialize(string text)
+    public static Hotkey Deserialize(string text)
     {
-        var hotKey = new HotKey();
+        var hotKey = new Hotkey();
         var settings = text.Split(',');
         if (settings.Length == 4)
         {
@@ -153,38 +158,22 @@ public class HotKey
         return hotKey;
     }
 
-    public HotKey Clone()
-    {
-        return new()
-        {
-            Control = Control,
-            Shift = Shift,
-            Alt = Alt,
-            KeyCode = KeyCode
-        };
-    }
-
     public bool SameAs(KeyPressedEventArgs args)
     {
         return args.Modifier == Modifier && args.Key == KeyCode;
     }
 
-    public override bool Equals(object obj)
-    {
-        if (obj is not HotKey h)
-        {
-            return false;
-        }
-
-        return Equals(h);
-    }
-
-    protected bool Equals(HotKey other)
+    public bool Equals(Hotkey other)
     {
         return KeyCode == other.KeyCode
             && Control == other.Control
             && Alt == other.Alt
             && Shift == other.Shift;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Hotkey other && Equals(other);
     }
 
     public override int GetHashCode()
@@ -199,13 +188,13 @@ public class HotKey
         }
     }
 
-    public static bool operator ==(HotKey key1, HotKey key2)
+    public static bool operator ==(Hotkey left, Hotkey right)
     {
-        return key1 != null && key2 != null && key1.Equals(key2);
+        return left.Equals(right);
     }
 
-    public static bool operator !=(HotKey key1, HotKey key2)
+    public static bool operator !=(Hotkey left, Hotkey right)
     {
-        return !(key1 == key2);
+        return !left.Equals(right);
     }
 }

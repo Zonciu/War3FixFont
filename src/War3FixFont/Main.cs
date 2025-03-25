@@ -68,6 +68,8 @@ public partial class Main : Form
 
     private readonly bool _inited;
 
+    private static API.WinEventProc _lockCursorCallback;
+
     public Main()
     {
         SettingsManager.Load();
@@ -106,15 +108,15 @@ public partial class Main : Form
         WindowModeComboBox.SelectedIndexChanged += WindowModeComboBox_SelectedIndexChanged;
 
         // 读取修复快捷键配置
-        var hotKey = Settings.HotKey;
+        var hotKey = Settings.Hotkey;
         if (hotKey.IsValid)
         {
-            HotKeyInputBox.HotKey = hotKey;
+            HotKeyInputBox.Hotkey = hotKey;
         }
         else
         {
-            Settings.HotKey = HotKey.DefaultFixHotKey;
-            HotKeyInputBox.HotKey = Settings.HotKey;
+            Settings.Hotkey = Hotkey.DefaultFixHotkey;
+            HotKeyInputBox.Hotkey = Settings.Hotkey;
         }
 
         HotKeyInputBox.HotKeyEditing += (_, _) =>
@@ -140,28 +142,21 @@ public partial class Main : Form
         CustomPositionY.Enabled = useCustomMode && CustomPositionCheckBox.Checked;
 
         // 读取显示窗口快捷键配置
-        if (Settings.ShowMeHotKey.IsValid)
+        if (Settings.ShowMeHotkey.IsValid)
         {
-            ShowMeHotKeyInputBox.HotKey = Settings.ShowMeHotKey;
+            ShowMeHotKeyInputBox.Hotkey = Settings.ShowMeHotkey;
         }
         else
         {
-            Settings.ShowMeHotKey = HotKey.DefaultShowMeHotKey;
-            ShowMeHotKeyInputBox.HotKey = Settings.ShowMeHotKey;
+            Settings.ShowMeHotkey = Hotkey.DefaultShowMeHotkey;
+            ShowMeHotKeyInputBox.Hotkey = Settings.ShowMeHotkey;
         }
 
-        ShowMeHotKeyInputBox.HotKeyEditing += (_, _) =>
-        {
-            if (_showMeHotKeyId != 0)
-            {
-                _hook.UnregisterHotKey(_showMeHotKeyId);
-                _showMeHotKeyId = 0;
-            }
-        };
         UpdateShowMeHotKey();
 
         // 窗口切换事件
         LockCursorCheckBox.Checked = Settings.LockCursor;
+        _lockCursorCallback = LockCursorEventProc;
         if (Settings.LockCursor)
         {
             LockCursor();
@@ -200,11 +195,11 @@ public partial class Main : Form
     /// <param name="args"></param>
     private void HotKeyEvent(object sender, KeyPressedEventArgs args)
     {
-        if (Settings.HotKey.SameAs(args))
+        if (Settings.Hotkey.SameAs(args))
         {
             HotKeyFix();
         }
-        else if (Settings.ShowMeHotKey.SameAs(args))
+        else if (Settings.ShowMeHotkey.SameAs(args))
         {
             ToggleWindow();
         }
@@ -305,9 +300,9 @@ public partial class Main : Form
             _fixHotKeyId = 0;
         }
 
-        if (EnableHotKeyCheckBox.Checked && HotKeyInputBox.HotKey.IsValid)
+        if (EnableHotKeyCheckBox.Checked && HotKeyInputBox.Hotkey.IsValid)
         {
-            var id = _hook.RegisterHotKey(HotKeyInputBox.HotKey.Modifier, HotKeyInputBox.HotKey.KeyCode, FixHotKeyId);
+            var id = _hook.RegisterHotKey(HotKeyInputBox.Hotkey.Modifier, HotKeyInputBox.Hotkey.KeyCode, FixHotKeyId);
             if (id.HasValue)
             {
                 _fixHotKeyId = id.Value;
@@ -414,14 +409,14 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void HotKeyInputBox_HotKeyChanged(object sender, EventArgs e)
     {
-        var hotkey = HotKeyInputBox.HotKey;
-        hotkey = hotkey.IsValid ? hotkey : HotKey.Empty;
-        if (!_inited || Settings.HotKey == hotkey)
+        var hotkey = HotKeyInputBox.Hotkey;
+        hotkey = hotkey.IsValid ? hotkey : Hotkey.Empty;
+        if (!_inited || Settings.Hotkey == hotkey)
         {
             return;
         }
 
-        Settings.HotKey = hotkey;
+        Settings.Hotkey = hotkey;
         SettingsManager.Save();
         UpdateFixHotKey();
     }
@@ -532,14 +527,14 @@ public partial class Main : Form
     /// <param name="e"></param>
     private void ShowMeHotKeyInputBox_HotKeyChanged(object sender, EventArgs e)
     {
-        var hotkey = ShowMeHotKeyInputBox.HotKey;
-        hotkey = hotkey.IsValid ? hotkey : HotKey.DefaultShowMeHotKey;
-        if (!_inited || Settings.ShowMeHotKey == hotkey)
+        var hotkey = ShowMeHotKeyInputBox.Hotkey;
+        hotkey = hotkey.IsValid ? hotkey : Hotkey.DefaultShowMeHotkey;
+        if (!_inited || Settings.ShowMeHotkey == hotkey)
         {
             return;
         }
 
-        Settings.ShowMeHotKey = hotkey;
+        Settings.ShowMeHotkey = hotkey;
         SettingsManager.Save();
         UpdateShowMeHotKey();
     }
@@ -555,7 +550,7 @@ public partial class Main : Form
             _showMeHotKeyId = 0;
         }
 
-        var hotKey = ShowMeHotKeyInputBox.HotKey;
+        var hotKey = ShowMeHotKeyInputBox.Hotkey;
         if (hotKey.IsValid)
         {
             var id = _hook.RegisterHotKey(hotKey.Modifier, hotKey.KeyCode, ShowMeHotKeyId);
@@ -568,6 +563,10 @@ public partial class Main : Form
             {
                 MessageBox.Show("注册显示窗口快捷键失败");
             }
+        }
+        else
+        {
+            MessageBox.Show("显示窗口快捷键无效");
         }
     }
 
@@ -674,7 +673,7 @@ public partial class Main : Form
     /// </summary>
     private void LockCursor()
     {
-        _winEventHook = API.SetWinEventHook(API.EVENT_SYSTEM_FOREGROUND, API.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, LockCursorEventProc, 0, 0, API.WINEVENT_OUTOFCONTEXT);
+        _winEventHook = API.SetWinEventHook(API.EVENT_SYSTEM_FOREGROUND, API.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, _lockCursorCallback, 0, 0, API.WINEVENT_OUTOFCONTEXT);
     }
 
     /// <summary>

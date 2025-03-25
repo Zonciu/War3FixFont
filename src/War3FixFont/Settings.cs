@@ -24,9 +24,9 @@ public class Settings
     /// 修复快捷键
     /// </summary>
     [JsonIgnore]
-    public HotKey HotKey
+    public Hotkey Hotkey
     {
-        get => HotKey.Deserialize(HotKeyString);
+        get => Hotkey.Deserialize(HotKeyString);
         set => HotKeyString = value.Serialize();
     }
 
@@ -40,9 +40,9 @@ public class Settings
     /// 呼出本窗口快捷键
     /// </summary>
     [JsonIgnore]
-    public HotKey ShowMeHotKey
+    public Hotkey ShowMeHotkey
     {
-        get => HotKey.Deserialize(ShowMeHotKeyString);
+        get => Hotkey.Deserialize(ShowMeHotKeyString);
         set => ShowMeHotKeyString = value.Serialize();
     }
 
